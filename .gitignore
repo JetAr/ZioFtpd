@@ -1,0 +1,16 @@
+*.user
+*.ncb
+*.lib
+*.ilk
+*.obj
+*.pdb
+*.suo
+*.exe
+*.htm
+*.idb
+*.manifest
+*.res
+*.dep
+*.user
+*.pch
+ioFTPD
