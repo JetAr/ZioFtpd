@@ -21,36 +21,36 @@
 
 typedef struct _DATA
 {
-	IOFILE				IoFile;
-	IOSOCKET			ioSocket;
-	struct sockaddr_in	Address;				//	Address of client in datasocket
-	DWORD				dwLastError;			//	Last error
-	ULONG               ulSslError;             //  OpenSSL error if dwLastError = IO_SSL_FAIL
+    IOFILE				IoFile;
+    IOSOCKET			ioSocket;
+    struct sockaddr_in	Address;				//	Address of client in datasocket
+    DWORD				dwLastError;			//	Last error
+    ULONG               ulSslError;             //  OpenSSL error if dwLastError = IO_SSL_FAIL
 
-	VIRTUALPATH			File;
-	INT64				Charged;				// Kilobytes charged from transfer
-	INT64				Size;					// Size of last transfer
-	INT64               FileSize;               // Size of file
-	DWORD				dwResumeOffset[2];
+    VIRTUALPATH			File;
+    INT64				Charged;				// Kilobytes charged from transfer
+    INT64				Size;					// Size of last transfer
+    INT64               FileSize;               // Size of file
+    DWORD				dwResumeOffset[2];
 
-	UCHAR				bActive				: 1;
-	UCHAR				bInitialized		: 1;
-	UCHAR				bProtected			: 1;
-	UCHAR				bProtectedConnect	: 1;
+    UCHAR				bActive				: 1;
+    UCHAR				bInitialized		: 1;
+    UCHAR				bProtected			: 1;
+    UCHAR				bProtectedConnect	: 1;
 
-	UCHAR				bEncoding		: 1;
-	UCHAR				bTransferMode	: 1;
-	UCHAR				bDirection		: 1;
-	UCHAR				bSpecial		: 1;
-	UCHAR				bFree			: 1;
+    UCHAR				bEncoding		: 1;
+    UCHAR				bTransferMode	: 1;
+    UCHAR				bDirection		: 1;
+    UCHAR				bSpecial		: 1;
+    UCHAR				bFree			: 1;
 
-	BOOL volatile		bAbort;
+    BOOL volatile		bAbort;
 
-	TIME_STRUCT			Start;
-	TIME_STRUCT			Stop;
-	DWORD               dwDuration;
+    TIME_STRUCT			Start;
+    TIME_STRUCT			Stop;
+    DWORD               dwDuration;
 
-	BUFFER				Buffer;
+    BUFFER				Buffer;
 
 } DATA, FTP_DATA, * PDATACHANNEL, DATACHANNEL, * LPDATACHANNEL;
 

@@ -21,20 +21,20 @@
 
 typedef struct _COMMAND
 {
-	IOSOCKET			Socket;
-	CHAR				Action[64];
+    IOSOCKET			Socket;
+    CHAR				Action[64];
 
-	INT					ErrorCode;
-	BOOL				TooLong;
-	INT					Prefix;
-	VIRTUALPATH			Path;
+    INT					ErrorCode;
+    BOOL				TooLong;
+    INT					Prefix;
+    VIRTUALPATH			Path;
 
-	LPSTR				Command;
-	DWORD				Length;
+    LPSTR				Command;
+    DWORD				Length;
 
-	DWORD				Idle;
-	BUFFER				In;
-	BUFFER				Out;
+    DWORD				Idle;
+    BUFFER				In;
+    BUFFER				Out;
 
 } COMMAND, * LPCOMMAND;
 

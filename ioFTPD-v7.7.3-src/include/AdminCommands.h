@@ -24,91 +24,91 @@ typedef LPTSTR (* ADMINPROC)(LPFTPUSER, LPTSTR, LPIO_STRING);
 
 typedef struct _ADMINCOMMAND
 {
-	LPTSTR	   tszCommand;
-	ADMINPROC  lpProc;
+    LPTSTR	   tszCommand;
+    ADMINPROC  lpProc;
 
 } ADMINCOMMAND, * LPADMINCOMMAND;
 
 
 typedef struct _CMD_PROGRESS
 {
-	LPCOMMAND   lpCommand;           // command struct for socket
-	LPCLIENT    lpClient;            // pointer to user's client structure or NULL
-	DWORD       dwTicks;             // tickcount to execute at
-	DWORD       dwDelay;             // time before next call
+    LPCOMMAND   lpCommand;           // command struct for socket
+    LPCLIENT    lpClient;            // pointer to user's client structure or NULL
+    DWORD       dwTicks;             // tickcount to execute at
+    DWORD       dwDelay;             // time before next call
     LPTSTR      tszMultilinePrefix;  // Prefix for line.
-	LPTSTR      tszFormatString;     // String to output.  gets 3 args
-	DWORD       dwArg1;              // first arg to pass to string
-	DWORD       dwArg2;              // second arg to pass to string
-	DWORD       dwArg3;              // third arg to pass to string
-	DWORD       dwArg4;              // forth arg to pass to string
+    LPTSTR      tszFormatString;     // String to output.  gets 3 args
+    DWORD       dwArg1;              // first arg to pass to string
+    DWORD       dwArg2;              // second arg to pass to string
+    DWORD       dwArg3;              // third arg to pass to string
+    DWORD       dwArg4;              // forth arg to pass to string
 
 } CMD_PROGRESS, *LPCMD_PROGRESS;
 
 
 typedef struct _ADMIN_SIZE
 {
-	LPUSERFILE     lpUserFile;
-	DWORD          dwFileCount;
-	DWORD          dwDirCount;
-	UINT64         u64Size;
-	DWORD          dwNoAccess;
-	CMD_PROGRESS   Progress;
+    LPUSERFILE     lpUserFile;
+    DWORD          dwFileCount;
+    DWORD          dwDirCount;
+    UINT64         u64Size;
+    DWORD          dwNoAccess;
+    CMD_PROGRESS   Progress;
 
 } ADMIN_SIZE, *LPADMIN_SIZE;
 
 typedef struct _ADMIN_UPDATE
 {
-	LPUSERFILE    lpUserFile;
-	VFSUPDATE     UpdateData;
-	LPTSTR        tszWildcard;
-	BOOL          bDirOnly;
-	BOOL          bFileOnly;
-	DWORD         dwAddModes;
-	DWORD         dwRemoveModes;
-	CMD_PROGRESS  Progress;
+    LPUSERFILE    lpUserFile;
+    VFSUPDATE     UpdateData;
+    LPTSTR        tszWildcard;
+    BOOL          bDirOnly;
+    BOOL          bFileOnly;
+    DWORD         dwAddModes;
+    DWORD         dwRemoveModes;
+    CMD_PROGRESS  Progress;
 
 } ADMIN_UPDATE, *LPADMIN_UPDATE;
 
 
 typedef struct _ACTION_TEST
 {
-	LPTSTR  tszAction;
-	LPTSTR  tszOwnerAction;
-	BOOL    bFileActivity;
-	BOOL    bDirectoryActivity;
-	BOOL    bSymbolicActivity;
-	BOOL    bNoMount;
-	DWORD   dwParentRequiredPerms;
-	DWORD   dwRequiredPerms;
+    LPTSTR  tszAction;
+    LPTSTR  tszOwnerAction;
+    BOOL    bFileActivity;
+    BOOL    bDirectoryActivity;
+    BOOL    bSymbolicActivity;
+    BOOL    bNoMount;
+    DWORD   dwParentRequiredPerms;
+    DWORD   dwRequiredPerms;
 
 } ACTION_TEST, *LPACTION_TEST;
 
 
 typedef struct _CHANGE_VARIABLES
 {
-	LPUSERFILE	lpAdmin;
-	LPUSERFILE	lpTarget;
-	LPTSTR		tszGroupName;
-	LPGROUPFILE	lpGroupFile;
-	IO_STRING	*Args;
-	INT			Section;
-	INT			Service;
-	BOOL        bLocalAdmin;
-	LPTSTR      tszMultilinePrefix;
-	LPBUFFER    lpBuffer;
-	BOOL        bDefault;
+    LPUSERFILE	lpAdmin;
+    LPUSERFILE	lpTarget;
+    LPTSTR		tszGroupName;
+    LPGROUPFILE	lpGroupFile;
+    IO_STRING	*Args;
+    INT			Section;
+    INT			Service;
+    BOOL        bLocalAdmin;
+    LPTSTR      tszMultilinePrefix;
+    LPBUFFER    lpBuffer;
+    BOOL        bDefault;
 
 } CHANGE_VARIABLES;
 
 
 typedef struct _change_cmd_table
 {
-	LPSTR	Trigger;
-	DWORD	l_Trigger;
-	BOOL	bUserCommand;
-	BOOL    bDefaultCommand;
-	INT		(*Command)(CHANGE_VARIABLES *);
+    LPSTR	Trigger;
+    DWORD	l_Trigger;
+    BOOL	bUserCommand;
+    BOOL    bDefaultCommand;
+    INT		(*Command)(CHANGE_VARIABLES *);
 
 } CHANGE_COMMAND;
 
@@ -158,14 +158,14 @@ LPTSTR Admin_Devices(LPFTPUSER lpUser, LPTSTR tszMultilinePrefix, LPIO_STRING Ar
 LPTSTR Admin_Ciphers(LPFTPUSER lpUser, LPTSTR tszMultilinePrefix, LPIO_STRING Args);
 
 VOID RecursiveAction(LPUSERFILE lpUserFile, MOUNTFILE hMountFile, LPTSTR lpPath, BOOL bIgnoreMountPoints,
-					 BOOL bIgnoreFiles, DWORD dwMaxDepth,
-					 BOOL (* lpModifyProc)(PVIRTUALPATH, LPFILEINFO, LPFILEINFO, LPVOID),
-					 LPVOID lpContext);
+                     BOOL bIgnoreFiles, DWORD dwMaxDepth,
+                     BOOL (* lpModifyProc)(PVIRTUALPATH, LPFILEINFO, LPFILEINFO, LPVOID),
+                     LPVOID lpContext);
 
 VOID PrettyPrintSize(LPTSTR lpBuf, DWORD dwBufLen, UINT64 u64Size);
 
 BOOL Admin_SizeAdd(PVIRTUALPATH lpVPath, LPFILEINFO lpFileInfo, LPFILEINFO lpParentInfo,
-				   LPADMIN_SIZE lpAdminSize);
+                   LPADMIN_SIZE lpAdminSize);
 
 VOID Progress_Update(LPCMD_PROGRESS lpProgress);
 

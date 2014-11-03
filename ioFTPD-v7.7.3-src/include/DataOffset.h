@@ -22,34 +22,34 @@
 
 typedef struct _DATA_OFFSETS
 {
-	LPBUFFER			lpBuffer;
-	DWORD				dwHave;
-	DWORD				dwOffsetType;
+    LPBUFFER			lpBuffer;
+    DWORD				dwHave;
+    DWORD				dwOffsetType;
 
-	LPUSERFILE			lpUserFile;
-	LPGROUPFILE			lpGroupFile;
-	INT					iPosition;
-	INT					iCreditSection;
-	INT					iStatsSection;
-	INT					iShareSection;
-	PCONNECTION_INFO	pConnectionInfo;
-	LPCOMMAND			lpCommandChannel;
-	LPDATACHANNEL		lpDataChannel;
-	MOUNTFILE			hMountFile;
-	LPFTPUSER           lpFtpUserCaller;
-	LPFTPUSER           lpFtpUser;
+    LPUSERFILE			lpUserFile;
+    LPGROUPFILE			lpGroupFile;
+    INT					iPosition;
+    INT					iCreditSection;
+    INT					iStatsSection;
+    INT					iShareSection;
+    PCONNECTION_INFO	pConnectionInfo;
+    LPCOMMAND			lpCommandChannel;
+    LPDATACHANNEL		lpDataChannel;
+    MOUNTFILE			hMountFile;
+    LPFTPUSER           lpFtpUserCaller;
+    LPFTPUSER           lpFtpUser;
 
-	//	Unknown data
-	LPVOID				lpUnknown;
+    //	Unknown data
+    LPVOID				lpUnknown;
 
 } DATA_OFFSETS, * LPDATA_OFFSETS;
 
 typedef struct _DATA_OFFSET
 {
-	LPDWORD	lpOffset;
-	BOOL	(* ConditionFunc)(LPVOID);
-	BYTE	bConditionParam;
-	DWORD	dwHave[2];
+    LPDWORD	lpOffset;
+    BOOL	(* ConditionFunc)(LPVOID);
+    BYTE	bConditionParam;
+    DWORD	dwHave[2];
 
 } DATA_OFFSET;
 

@@ -35,15 +35,20 @@ INT64 tcstoi64(LPTSTR tszString, TCHAR **tpOffset, DWORD dwBase)
     lResult  = 0;
 
     //z 首先判断是否有负号，不支持＋；不是lib，使用者和函数生产者都是自己，注意即可。
-    if(tszString[0]==_TEXT('-')) {
+    if(tszString[0]==_TEXT('-'))
+    {
         tszString++;
         bNegative  = TRUE;
-    } else {
+    }
+    else
+    {
         bNegative  = FALSE;
     }
 
-    for(;;dwValid++) {
-        if(!_istdigit(tszString[0])) {
+    for(;; dwValid++)
+    {
+        if(!_istdigit(tszString[0]))
+        {
             //z 如果接收 tpOffset
             if(tpOffset)
                 //z 那么记录下对应的位置的
@@ -83,7 +88,7 @@ DataRow_ParseBuffer(PCHAR pBuffer,
     pBufferEnd  = &pBuffer[dwBufferSize];
     pField    = pBuffer;
 
-    for (;pNewline = (PCHAR)memchr(pField, '\n', pBufferEnd -  pField);pField = &pNewline[1])
+    for (; pNewline = (PCHAR)memchr(pField, '\n', pBufferEnd -  pField); pField = &pNewline[1])
     {
         //  Find first field
         if (! (pSpace = (PCHAR)memchr(pField, ' ', pNewline - pField)))
@@ -97,7 +102,7 @@ DataRow_ParseBuffer(PCHAR pBuffer,
             dwField  = (pNewline[-1] == '\r' ? &pNewline[-1] : pNewline) - pField;
             pField[dwField] = 0;
 
-            for (n = dwDataRowArray;n--;)
+            for (n = dwDataRowArray; n--;)
             {
                 //  Get pointer to userfield
                 lpDataRow  = &lpDataRowArray[n];
@@ -122,7 +127,7 @@ DataRow_ParseBuffer(PCHAR pBuffer,
         dwData  = (pNewline[-1] == '\r' ? &pNewline[-1] : pNewline) - szData;
         //  Skip zero length
         if (dwData <= 0 ||
-            dwField <= 0)
+                dwField <= 0)
         {
             // need to terminate the line
             szData[dwData] = 0;
@@ -133,7 +138,7 @@ DataRow_ParseBuffer(PCHAR pBuffer,
         szData[dwData]  = 0;
         pSpace[0] = 0;
 
-        for (n = dwDataRowArray;n--;)
+        for (n = dwDataRowArray; n--;)
         {
             //  Get pointer to userfield
             lpDataRow  = &lpDataRowArray[n];
@@ -165,7 +170,7 @@ DataRow_ParseBuffer(PCHAR pBuffer,
                 break;
             }
 
-            for (i = 0U;i < lpDataRow->dwMaxArgs;i++)
+            for (i = 0U; i < lpDataRow->dwMaxArgs; i++)
             {
                 //  Find next string
                 if (! (pCheck = (LPSTR)memchr(szData, ' ', dwData)))
@@ -188,7 +193,7 @@ DataRow_ParseBuffer(PCHAR pBuffer,
             }
             break;
         case DT_GROUPID:
-            for (i = j = 0U;j < lpDataRow->dwMaxArgs;i++)
+            for (i = j = 0U; j < lpDataRow->dwMaxArgs; i++)
             {
                 i32  = strtol(szData, &pCheck, 10);
                 if (! pCheck || pCheck == szData) break;
@@ -204,7 +209,7 @@ DataRow_ParseBuffer(PCHAR pBuffer,
             if (j < lpDataRow->dwMaxArgs) ((PINT)lpBuffer)[0]  = -1;
             break;
         case DT_INT32:
-            for (i = 0U;i < lpDataRow->dwMaxArgs;i++)
+            for (i = 0U; i < lpDataRow->dwMaxArgs; i++)
             {
                 i32  = strtol(szData, &pCheck, 10);
                 if (! pCheck || pCheck == szData) break;
@@ -215,7 +220,7 @@ DataRow_ParseBuffer(PCHAR pBuffer,
             }
             break;
         case DT_INT64:
-            for (i = 0U;i < lpDataRow->dwMaxArgs;i++)
+            for (i = 0U; i < lpDataRow->dwMaxArgs; i++)
             {
                 i64  = tcstoi64(szData, &pCheck, 10);
                 if (! pCheck || pCheck == szData) break;
@@ -230,7 +235,7 @@ DataRow_ParseBuffer(PCHAR pBuffer,
             //  Password hash
             ZeroMemory(pHexData, sizeof(pHexData));
 
-            for (i = 0U;i < lpDataRow->dwMaxLength && dwData >= 2;i++)
+            for (i = 0U; i < lpDataRow->dwMaxLength && dwData >= 2; i++)
             {
                 //  Copy to work buffer
                 pHexData[0]  = szData[i << 1];
@@ -263,7 +268,7 @@ DataRow_Dump(LPBUFFER lpOutBuffer,
     UINT     i;
 
     //  Copy data to output buffer
-    for (;dwDataRowArray--;)
+    for (; dwDataRowArray--;)
     {
         lpDataRow  = &lpDataRowArray[dwDataRowArray];
         //  Get offset where-to read data
@@ -274,7 +279,7 @@ DataRow_Dump(LPBUFFER lpOutBuffer,
         case DT_STRING:
             if (((LPSTR)lpBuffer)[0] == '\0') break;
             FormatString(lpOutBuffer, _TEXT("%s"), lpDataRow->szName);
-            for (i = 0U;i < lpDataRow->dwMaxArgs;i++)
+            for (i = 0U; i < lpDataRow->dwMaxArgs; i++)
             {
                 if (((LPSTR)lpBuffer)[0] == '\0') break;
                 FormatString(lpOutBuffer, _TEXT(" %s"),  (LPSTR)lpBuffer);
@@ -284,7 +289,7 @@ DataRow_Dump(LPBUFFER lpOutBuffer,
             break;
         case DT_GROUPID:
             FormatString(lpOutBuffer, _TEXT("%s"), lpDataRow->szName);
-            for (i = 0U;i < lpDataRow->dwMaxArgs;i++)
+            for (i = 0U; i < lpDataRow->dwMaxArgs; i++)
             {
                 i32  = ((PINT32)lpBuffer)[0];
                 if (i32 < 0) break;
@@ -295,7 +300,7 @@ DataRow_Dump(LPBUFFER lpOutBuffer,
             break;
         case DT_INT32:
             FormatString(lpOutBuffer, _TEXT("%s"), lpDataRow->szName);
-            for (i = 0U;i < lpDataRow->dwMaxArgs;i++)
+            for (i = 0U; i < lpDataRow->dwMaxArgs; i++)
             {
                 i32  = ((PINT32)lpBuffer)[0];
                 FormatString(lpOutBuffer, _TEXT(" %i"), i32);
@@ -305,7 +310,7 @@ DataRow_Dump(LPBUFFER lpOutBuffer,
             break;
         case DT_INT64:
             FormatString(lpOutBuffer, _TEXT("%s"), lpDataRow->szName);
-            for (i = 0U;i < lpDataRow->dwMaxArgs;i++)
+            for (i = 0U; i < lpDataRow->dwMaxArgs; i++)
             {
                 i64  = ((PINT64)lpBuffer)[0];
                 FormatString(lpOutBuffer, _TEXT(" %I64i"), i64);
@@ -316,7 +321,7 @@ DataRow_Dump(LPBUFFER lpOutBuffer,
         case DT_PASSWORD:
             //  Password hash
             FormatString(lpOutBuffer, _TEXT("%s "), lpDataRow->szName);
-            for (i = 0U;i < lpDataRow->dwMaxLength;i++)
+            for (i = 0U; i < lpDataRow->dwMaxLength; i++)
             {
                 //  Store to memory
                 i32  = (INT32)((PUINT8)lpBuffer)[i];

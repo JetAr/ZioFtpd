@@ -51,12 +51,12 @@
 
 typedef struct _DC_MESSAGE
 {
-	HANDLE		hEvent;
-	HANDLE		hObject;
-	DWORD		dwIdentifier;
-	DWORD		dwReturn;
-	LPVOID		lpMemoryBase;
-	LPVOID		lpContext;
+    HANDLE		hEvent;
+    HANDLE		hObject;
+    DWORD		dwIdentifier;
+    DWORD		dwReturn;
+    LPVOID		lpMemoryBase;
+    LPVOID		lpContext;
 
 
 } DC_MESSAGE, * LPDC_MESSAGE;
@@ -70,42 +70,42 @@ typedef struct _DC_MESSAGE
 
 typedef struct _DC_USERFILE_REQUEST
 {
-	USERFILE           UserFile;
+    USERFILE           UserFile;
 
-	struct _DC_USERFILE_REQUEST *lpNext;
-	struct _DC_USERFILE_REQUEST *lpPrev;
+    struct _DC_USERFILE_REQUEST *lpNext;
+    struct _DC_USERFILE_REQUEST *lpPrev;
 } DC_USERFILE_REQUEST, *LPDC_USERFILE_REQUEST;
 
 
 typedef struct _EXCHANGE_REQUEST
 {
-	WORD				  wType;		// Type of allocation
-	WORD				  wStatus;		// Request status
-	HANDLE				  hEvent;		// Event handle
-	HANDLE				  hMemory;		// Memory object handle
-	DWORD				  dwTickCount;	// When request was issued
-	LPDC_USERFILE_REQUEST lpUserFileReqList[2]; // linked list of open userfile requests
-	LPDC_MESSAGE		  lpMessage;
+    WORD				  wType;		// Type of allocation
+    WORD				  wStatus;		// Request status
+    HANDLE				  hEvent;		// Event handle
+    HANDLE				  hMemory;		// Memory object handle
+    DWORD				  dwTickCount;	// When request was issued
+    LPDC_USERFILE_REQUEST lpUserFileReqList[2]; // linked list of open userfile requests
+    LPDC_MESSAGE		  lpMessage;
 
-	struct _EXCHANGE_REQUEST	*lpNext;
-	struct _EXCHANGE_REQUEST	*lpPrev;
-	
+    struct _EXCHANGE_REQUEST	*lpNext;
+    struct _EXCHANGE_REQUEST	*lpPrev;
+
 } EXCHANGE_REQUEST, * LPEXCHANGE_REQUEST;
 
 
 
 typedef struct _DC_RENAME
 {
-	TCHAR	tszName[_MAX_NAME + 1];
-	TCHAR	tszNewName[_MAX_NAME + 1];
+    TCHAR	tszName[_MAX_NAME + 1];
+    TCHAR	tszNewName[_MAX_NAME + 1];
 } DC_RENAME, * LPDC_RENAME;
 
 
 
 typedef struct _DC_NAMEID
 {
-	TCHAR	tszName[_MAX_NAME + 1];
-	INT32		Id;
+    TCHAR	tszName[_MAX_NAME + 1];
+    INT32		Id;
 
 } DC_NAMEID, * LPDC_NAMEID;
 
@@ -113,9 +113,9 @@ typedef struct _DC_NAMEID
 
 typedef struct _DC_ONLINEDATA
 {
-	ONLINEDATA	OnlineData;
-	INT			iOffset;
-	DWORD		dwSharedMemorySize;
+    ONLINEDATA	OnlineData;
+    INT			iOffset;
+    DWORD		dwSharedMemorySize;
 
 } DC_ONLINEDATA, * LPDC_ONLINEDATA;
 
@@ -123,11 +123,11 @@ typedef struct _DC_ONLINEDATA
 
 typedef struct _DC_VFS
 {
-	UINT32			Uid;
-	UINT32			Gid;
-	DWORD			dwFileMode;
-	DWORD			dwBuffer;
-	PBYTE			pBuffer[1];
+    UINT32			Uid;
+    UINT32			Gid;
+    DWORD			dwFileMode;
+    DWORD			dwBuffer;
+    PBYTE			pBuffer[1];
 
 } DC_VFS, * LPDC_VFS;
 

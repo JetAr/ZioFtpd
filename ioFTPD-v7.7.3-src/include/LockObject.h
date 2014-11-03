@@ -25,7 +25,6 @@ typedef struct _LOCKOBJECT
 {
 	HANDLE			hEvent[2];
 	LONG volatile	lExclusive;
-
 } LOCKOBJECT, *LPLOCKOBJECT;
 
 

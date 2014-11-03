@@ -24,13 +24,13 @@
 
 BOOL HasFlag(LPUSERFILE lpUserFile, LPSTR szFlagList)
 {
-	if (! lpUserFile ||	strpbrk(lpUserFile->Flags, szFlagList))
-	{
-		return FALSE;
-	}
-	//	Set error
-	SetLastError(IO_NO_ACCESS);
-	return TRUE;
+    if (! lpUserFile ||	strpbrk(lpUserFile->Flags, szFlagList))
+    {
+        return FALSE;
+    }
+    //	Set error
+    SetLastError(IO_NO_ACCESS);
+    return TRUE;
 }
 
 
@@ -51,122 +51,122 @@ BOOL HasFlag(LPUSERFILE lpUserFile, LPSTR szFlagList)
 */
 INT HavePermission(LPUSERFILE lpUserFile, LPSTR szAccessList)
 {
-	LPSTR		szUserName;
+    LPSTR		szUserName;
 
-	//	Cannot compare NULL
-	if (! szAccessList || ! lpUserFile)
-	{
-		return FALSE;
-	}
+    //	Cannot compare NULL
+    if (! szAccessList || ! lpUserFile)
+    {
+        return FALSE;
+    }
 
-	szUserName	= Uid2User(lpUserFile->Uid);
+    szUserName	= Uid2User(lpUserFile->Uid);
 
-	return CheckPermissions(szUserName, lpUserFile->Groups, lpUserFile->Flags, szAccessList);
+    return CheckPermissions(szUserName, lpUserFile->Groups, lpUserFile->Flags, szAccessList);
 }
 
 
 INT CheckPermissions(LPSTR szUserName, PINT32 lpGroups,
-					 LPSTR szUserFlags, LPSTR szAccessList)
+                     LPSTR szUserFlags, LPSTR szAccessList)
 {
-	LPSTR		szGroupName;
-	PCHAR		pOffset, pNewOffset;
-	BOOL		bDeny, bMatch, bLoop;
-	DWORD		dwLength, dwUserName, dwGroupName;
-	INT			i;
+    LPSTR		szGroupName;
+    PCHAR		pOffset, pNewOffset;
+    BOOL		bDeny, bMatch, bLoop;
+    DWORD		dwLength, dwUserName, dwGroupName;
+    INT			i;
 
-	pOffset		= szAccessList;
-	bLoop		= TRUE;
-	bMatch		= FALSE;
-	dwUserName  = 0;
-	
-	for (;bLoop;)
-	{
-		//	Search for next blank
-		if (! (pNewOffset = (LPSTR)strchr(pOffset, ' ')))
-		{
-			//	End of string, no more looping
-			bLoop		= FALSE;
-			pNewOffset	= &pOffset[strlen(pOffset)];
-		}
+    pOffset		= szAccessList;
+    bLoop		= TRUE;
+    bMatch		= FALSE;
+    dwUserName  = 0;
 
-		if (pOffset[0] == '!')
-		{
-			//	Reject matching user
-			bDeny	= TRUE;
-			pOffset++;
-		}
-		else
-		{
-			//	Accept matching user
-			bDeny	= FALSE;
-		}
+    for (; bLoop;)
+    {
+        //	Search for next blank
+        if (! (pNewOffset = (LPSTR)strchr(pOffset, ' ')))
+        {
+            //	End of string, no more looping
+            bLoop		= FALSE;
+            pNewOffset	= &pOffset[strlen(pOffset)];
+        }
 
-		switch (pOffset[0])
-		{
-		case '*':
-			//	Any (always matches)
-			bMatch	= TRUE;
-			break;
+        if (pOffset[0] == '!')
+        {
+            //	Reject matching user
+            bDeny	= TRUE;
+            pOffset++;
+        }
+        else
+        {
+            //	Accept matching user
+            bDeny	= FALSE;
+        }
 
-		case '=':
-			//	Group
-			dwLength	= pNewOffset - ++pOffset;
+        switch (pOffset[0])
+        {
+        case '*':
+            //	Any (always matches)
+            bMatch	= TRUE;
+            break;
 
-			for (i = 0;i < MAX_GROUPS && lpGroups[i] != -1;i++)
-			{
-				if (szGroupName = Gid2Group(lpGroups[i]))
-				{
-					dwGroupName = strlen(szGroupName);
-					// changed from !memcmp(pOffset, szGroupName, dwLength) && szGroupName[dwLength] == 0
-					// to make purify happy
-					if (dwGroupName == dwLength && ! memcmp(pOffset, szGroupName, dwLength))
-					{
-						bMatch	= TRUE;
-						break;
-					}
-				}
-			}
-			break;
+        case '=':
+            //	Group
+            dwLength	= pNewOffset - ++pOffset;
 
-		case '-':
-			//	User
-			dwLength	= pNewOffset - ++pOffset;
-			if (!dwUserName)
-			{
-				if (!szUserName) break;
-				dwUserName = strlen(szUserName);
-			}
+            for (i = 0; i < MAX_GROUPS && lpGroups[i] != -1; i++)
+            {
+                if (szGroupName = Gid2Group(lpGroups[i]))
+                {
+                    dwGroupName = strlen(szGroupName);
+                    // changed from !memcmp(pOffset, szGroupName, dwLength) && szGroupName[dwLength] == 0
+                    // to make purify happy
+                    if (dwGroupName == dwLength && ! memcmp(pOffset, szGroupName, dwLength))
+                    {
+                        bMatch	= TRUE;
+                        break;
+                    }
+                }
+            }
+            break;
 
-			if (dwUserName == dwLength && ! memcmp(szUserName, pOffset, dwLength))
-			{
-				bMatch	= TRUE;
-			}
-			break;
+        case '-':
+            //	User
+            dwLength	= pNewOffset - ++pOffset;
+            if (!dwUserName)
+            {
+                if (!szUserName) break;
+                dwUserName = strlen(szUserName);
+            }
 
-		default:
-			dwLength	= pNewOffset - pOffset;
-			i			= strlen(szUserFlags);
+            if (dwUserName == dwLength && ! memcmp(szUserName, pOffset, dwLength))
+            {
+                bMatch	= TRUE;
+            }
+            break;
 
-			for (;dwLength--;)
-			{
-				if (memchr(szUserFlags, (pOffset++)[0], i))
-				{
-					bMatch	= TRUE;
-					break;
-				}
-			}
-			break; 
-		}
+        default:
+            dwLength	= pNewOffset - pOffset;
+            i			= strlen(szUserFlags);
 
-		if (bMatch)
-		{
-			//	Rule matches
-			if (bDeny) break;
-			return FALSE;
-		}
-		pOffset	= &pNewOffset[1];
-	}
+            for (; dwLength--;)
+            {
+                if (memchr(szUserFlags, (pOffset++)[0], i))
+                {
+                    bMatch	= TRUE;
+                    break;
+                }
+            }
+            break;
+        }
 
-	SetLastError(IO_NO_ACCESS);
-	return -1;
+        if (bMatch)
+        {
+            //	Rule matches
+            if (bDeny) break;
+            return FALSE;
+        }
+        pOffset	= &pNewOffset[1];
+    }
+
+    SetLastError(IO_NO_ACCESS);
+    return -1;
 }

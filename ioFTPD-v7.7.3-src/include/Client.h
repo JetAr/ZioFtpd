@@ -21,10 +21,10 @@
 
 typedef struct _CLIENTSLOT
 {
-	DWORD				dwId;
-	LONG volatile		lJobLock;
-	LONG volatile		lDataLock;
-	struct _CLIENTSLOT	*lpNext;
+    DWORD				dwId;
+    LONG volatile		lJobLock;
+    LONG volatile		lDataLock;
+    struct _CLIENTSLOT	*lpNext;
 
 } CLIENTSLOT, * LPCLIENTSLOT;
 
@@ -32,25 +32,25 @@ typedef struct _CLIENTSLOT
 
 typedef struct _CLIENT
 {
-	ONLINEDATA		Static;
-	DWORD           dwTransferLastUpdated; // didn't want to change exported ONLINEDATA field
-	LPIOSERVICE		lpService;
-	DWORD			dwLoginTime;
+    ONLINEDATA		Static;
+    DWORD           dwTransferLastUpdated; // didn't want to change exported ONLINEDATA field
+    LPIOSERVICE		lpService;
+    DWORD			dwLoginTime;
 
-	DWORD			dwJobFilter;
-	LPCLIENTJOB		lpJobList;
-	LPCLIENTJOB		lpActiveJobList;
+    DWORD			dwJobFilter;
+    LPCLIENTJOB		lpJobList;
+    LPCLIENTJOB		lpActiveJobList;
 
-	LPCLIENTJOB		lpActiveJob;
-	LPCLIENTJOB		lpJobQueue[2];
-	DWORD			dwActiveFlags;
+    LPCLIENTJOB		lpActiveJob;
+    LPCLIENTJOB		lpJobQueue[2];
+    DWORD			dwActiveFlags;
 
-	DWORD           lClientCount;  // lClientCounter when created
+    DWORD           lClientCount;  // lClientCounter when created
 
-	//	Synchronization items
-	LPCLASS			lpClass;
-	LPHOSTINFO		lpHostInfo;
-	LPFTPUSER		lpUser;
+    //	Synchronization items
+    LPCLASS			lpClass;
+    LPHOSTINFO		lpHostInfo;
+    LPFTPUSER		lpUser;
 
 } CLIENT, * LPCLIENT;
 

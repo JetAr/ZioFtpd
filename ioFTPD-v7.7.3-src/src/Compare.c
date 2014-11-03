@@ -26,50 +26,50 @@
 // returns 0 on match, else 1
 INT spCompare(LPSTR String1, LPSTR String2)
 {
-	PCHAR	pStore[2];
+    PCHAR	pStore[2];
 
-	pStore[0]	= NULL;
+    pStore[0]	= NULL;
 
-	while (String2[0])
-	{
-		switch (String1[0])
-		{
-		case '\0':
-			return -1;
+    while (String2[0])
+    {
+        switch (String1[0])
+        {
+        case '\0':
+            return -1;
 
-		case '*':
-			if ((++String1)[0] == '\0') return 0;
-			//	Store new offsets
-			pStore[0]	= String1;
-			pStore[1]	= String2;
-			break;
+        case '*':
+            if ((++String1)[0] == '\0') return 0;
+            //	Store new offsets
+            pStore[0]	= String1;
+            pStore[1]	= String2;
+            break;
 
-		case '?':
-			String1++;
-			String2++;
-			break;
+        case '?':
+            String1++;
+            String2++;
+            break;
 
-		default:
-			if (tolower(String1[0]) != tolower(String2[0]))
-			{
-				//	Get resume offset
-				if (! pStore[0]) return String1[0] - String2[0];
+        default:
+            if (tolower(String1[0]) != tolower(String2[0]))
+            {
+                //	Get resume offset
+                if (! pStore[0]) return String1[0] - String2[0];
 
-				String1	= pStore[0];
-				String2	= ++(pStore[1]);
-			}
-			else
-			{
-				String1++;
-				String2++;
-			}
-		}
-	}
+                String1	= pStore[0];
+                String2	= ++(pStore[1]);
+            }
+            else
+            {
+                String1++;
+                String2++;
+            }
+        }
+    }
 
-	if (String1[0] != '\0' &&
-		(String1[0] != '*' || String1[1] != '\0')) return 1;
+    if (String1[0] != '\0' &&
+            (String1[0] != '*' || String1[1] != '\0')) return 1;
 
-	return 0;
+    return 0;
 }
 
 
@@ -77,108 +77,108 @@ INT spCompare(LPSTR String1, LPSTR String2)
 // returns 0 on match, else 1
 INT iCompare(LPSTR String1, LPSTR String2)
 {
-	PCHAR	pStore[2];
-	BOOL	bMatch, bReject, bLoop;
+    PCHAR	pStore[2];
+    BOOL	bMatch, bReject, bLoop;
 
-	pStore[0]	= NULL;
+    pStore[0]	= NULL;
 
-	while (String2[0])
-	{
-		switch (String1[0])
-		{
-		case '\0':
-			return -1;
+    while (String2[0])
+    {
+        switch (String1[0])
+        {
+        case '\0':
+            return -1;
 
-		case '*':
-			if ((++String1)[0] == '\0') return 0;
-			//	Store new offsets
-			pStore[0]	= String1;
-			pStore[1]	= String2;
-			break;
+        case '*':
+            if ((++String1)[0] == '\0') return 0;
+            //	Store new offsets
+            pStore[0]	= String1;
+            pStore[1]	= String2;
+            break;
 
-		case '?':
-			String1++;
-			String2++;
-			break;
+        case '?':
+            String1++;
+            String2++;
+            break;
 
-		case '[':
-			bMatch	= FALSE;
-			bReject	= FALSE;
-			bLoop   = TRUE;
+        case '[':
+            bMatch	= FALSE;
+            bReject	= FALSE;
+            bLoop   = TRUE;
 
-			while (bLoop)
-			{
-				switch ((++String1)[0])
-				{
-				case '\0':
-					//	Broken comparison set
-					return 1;
-				case ']':
-					//	No match
-					bLoop = FALSE;
-					String1++;
-					break;
-				case '^':
-					// toggles matching / not matching
-					bReject = TRUE;
-					continue;
-				case '\\':
-					//	Sanity check
-					if (String1[1] != '\0') String1++;
-				default:
-					if (String1[1] == '-' && String1[-1] != '\\')
-					{
-						//	Range 'x0' - 'x1'
-						if (tolower(String2[0]) >= tolower(String1[0]) &&
-							tolower(String2[0]) <= tolower(String1[2]))
-						{
-							String1	+= 2;
-							bMatch = TRUE;
-						}
-					}
-					else if (tolower(String1[0]) == tolower(String2[0]))
-					{
-						bMatch = TRUE;
-					}
-				}
-			}
+            while (bLoop)
+            {
+                switch ((++String1)[0])
+                {
+                case '\0':
+                    //	Broken comparison set
+                    return 1;
+                case ']':
+                    //	No match
+                    bLoop = FALSE;
+                    String1++;
+                    break;
+                case '^':
+                    // toggles matching / not matching
+                    bReject = TRUE;
+                    continue;
+                case '\\':
+                    //	Sanity check
+                    if (String1[1] != '\0') String1++;
+                default:
+                    if (String1[1] == '-' && String1[-1] != '\\')
+                    {
+                        //	Range 'x0' - 'x1'
+                        if (tolower(String2[0]) >= tolower(String1[0]) &&
+                                tolower(String2[0]) <= tolower(String1[2]))
+                        {
+                            String1	+= 2;
+                            bMatch = TRUE;
+                        }
+                    }
+                    else if (tolower(String1[0]) == tolower(String2[0]))
+                    {
+                        bMatch = TRUE;
+                    }
+                }
+            }
 
-			// rejecting and found a match, or not rejecting and didn't find a match
-			if ((bReject && bMatch) || (!bReject && !bMatch))
-			{
-				//	Get resume offset
-				if (! pStore[0]) return 1;
+            // rejecting and found a match, or not rejecting and didn't find a match
+            if ((bReject && bMatch) || (!bReject && !bMatch))
+            {
+                //	Get resume offset
+                if (! pStore[0]) return 1;
 
-				String1	= pStore[0];
-				String2	= ++(pStore[1]);
-			}
-			else
-			{
-				String2++;
-			}
-			break;
+                String1	= pStore[0];
+                String2	= ++(pStore[1]);
+            }
+            else
+            {
+                String2++;
+            }
+            break;
 
-		default:
-			if (tolower(String1[0]) != tolower(String2[0]))
-			{
-				//	Get resume offset
-				if (! pStore[0]) return String1[0] - String2[0];
+        default:
+            if (tolower(String1[0]) != tolower(String2[0]))
+            {
+                //	Get resume offset
+                if (! pStore[0]) return String1[0] - String2[0];
 
-				String1	= pStore[0];
-				String2	= ++(pStore[1]);
-			}
-			else
-			{
-				String1++;
-				String2++;
-			}
-		}
-	}
+                String1	= pStore[0];
+                String2	= ++(pStore[1]);
+            }
+            else
+            {
+                String1++;
+                String2++;
+            }
+        }
+    }
 
-	if (String1[0] != '\0' &&
-		(String1[0] != '*' || String1[1] != '\0')) return 1;
+    if (String1[0] != '\0' &&
+            (String1[0] != '*' || String1[1] != '\0')) return 1;
 
-	return 0;
+    return 0;
 }
 
 
@@ -186,109 +186,109 @@ INT iCompare(LPSTR String1, LPSTR String2)
 
 INT PathCompare(LPSTR String1, LPSTR String2)
 {
-	PCHAR	pStore[2];
-	BOOL	bMatch, bReject, bLoop;
+    PCHAR	pStore[2];
+    BOOL	bMatch, bReject, bLoop;
 
-	pStore[0]	= NULL;
+    pStore[0]	= NULL;
 
-	while (String2[0])
-	{
-		switch (String1[0])
-		{
-		case '\0':
-			return -1;
+    while (String2[0])
+    {
+        switch (String1[0])
+        {
+        case '\0':
+            return -1;
 
-		case '*':
-			if ((++String1)[0] == '\0') return 0;
-			//	Store new offsets
-			pStore[0]	= String1;
-			pStore[1]	= String2;
-			break;
+        case '*':
+            if ((++String1)[0] == '\0') return 0;
+            //	Store new offsets
+            pStore[0]	= String1;
+            pStore[1]	= String2;
+            break;
 
-		case '?':
-			String1++;
-			String2++;
-			break;
+        case '?':
+            String1++;
+            String2++;
+            break;
 
-		case '[':
-			bMatch	= FALSE;
-			bReject	= FALSE;
-			bLoop   = TRUE;
+        case '[':
+            bMatch	= FALSE;
+            bReject	= FALSE;
+            bLoop   = TRUE;
 
-			while (bLoop)
-			{
-				switch ((++String1)[0])
-				{
-				case '\0':
-					//	Broken comparison set
-					return 1;
-				case ']':
-					//	No match
-					bLoop = FALSE;
-					String1++;
-					break;
-				case '^':
-					// toggles matching / not matching
-					bReject = TRUE;
-					continue;
-				case '\\':
-					//	Sanity check
-					if (String1[1] != '\0') String1++;
-				default:
-					if (String1[1] == '-' && String1[-1] != '\\')
-					{
-						//	Range 'x0' - 'x1'
-						if (tolower(String2[0]) >= tolower(String1[0]) &&
-							tolower(String2[0]) <= tolower(String1[2]))
-						{
-							String1	+= 2;
-							bMatch = TRUE;
-						}
-					}
-					else if (tolower(String1[0]) == tolower(String2[0]))
-					{
-						bMatch = TRUE;
-					}
-				}
-			}
+            while (bLoop)
+            {
+                switch ((++String1)[0])
+                {
+                case '\0':
+                    //	Broken comparison set
+                    return 1;
+                case ']':
+                    //	No match
+                    bLoop = FALSE;
+                    String1++;
+                    break;
+                case '^':
+                    // toggles matching / not matching
+                    bReject = TRUE;
+                    continue;
+                case '\\':
+                    //	Sanity check
+                    if (String1[1] != '\0') String1++;
+                default:
+                    if (String1[1] == '-' && String1[-1] != '\\')
+                    {
+                        //	Range 'x0' - 'x1'
+                        if (tolower(String2[0]) >= tolower(String1[0]) &&
+                                tolower(String2[0]) <= tolower(String1[2]))
+                        {
+                            String1	+= 2;
+                            bMatch = TRUE;
+                        }
+                    }
+                    else if (tolower(String1[0]) == tolower(String2[0]))
+                    {
+                        bMatch = TRUE;
+                    }
+                }
+            }
 
-			// rejecting and found a match, or not rejecting and didn't find a match
-			if ((bReject && bMatch) || (!bReject && !bMatch))
-			{
-				//	Get resume offset
-				if (! pStore[0]) return 1;
+            // rejecting and found a match, or not rejecting and didn't find a match
+            if ((bReject && bMatch) || (!bReject && !bMatch))
+            {
+                //	Get resume offset
+                if (! pStore[0]) return 1;
 
-				String1	= pStore[0];
-				String2	= ++(pStore[1]);
-			}
-			else
-			{
-				String2++;
-			}
-			break;
+                String1	= pStore[0];
+                String2	= ++(pStore[1]);
+            }
+            else
+            {
+                String2++;
+            }
+            break;
 
-		case '\\':
-			if (String1[0] != '\0') String1++;
-		default:
-			if (tolower(String1[0]) != tolower(String2[0]))
-			{
-				//	Get resume offset
-				if (! pStore[0]) return String1[0] - String2[0];
+        case '\\':
+            if (String1[0] != '\0') String1++;
+        default:
+            if (tolower(String1[0]) != tolower(String2[0]))
+            {
+                //	Get resume offset
+                if (! pStore[0]) return String1[0] - String2[0];
 
-				String1	= pStore[0];
-				String2	= ++(pStore[1]);
-			}
-			else
-			{
-				String1++;
-				String2++;
-			}
-		}
-	}
+                String1	= pStore[0];
+                String2	= ++(pStore[1]);
+            }
+            else
+            {
+                String1++;
+                String2++;
+            }
+        }
+    }
 
-	if (String1[0] == '/') String1++;
-	if (String1[0] != '\0' &&
-		(String1[0] != '*' || String1[1] != '\0')) return 1;
+    if (String1[0] == '/') String1++;
+    if (String1[0] != '\0' &&
+            (String1[0] != '*' || String1[1] != '\0')) return 1;
 
-	return 0;
+    return 0;
 }

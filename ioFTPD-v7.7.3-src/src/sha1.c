@@ -114,15 +114,18 @@ extern "C"
     one_cycle(v, 1,2,3,4,0, f,k,hf(i+4))
 
 VOID_RETURN sha1_compile(sha1_ctx ctx[1])
-{   uint_32t    *w = ctx->wbuf;
+{
+    uint_32t    *w = ctx->wbuf;
 
 #ifdef ARRAY
     uint_32t    v[5];
     memcpy(v, ctx->hash, 5 * sizeof(uint_32t));
 #else
     uint_32t    v0, v1, v2, v3, v4;
-    v0 = ctx->hash[0]; v1 = ctx->hash[1];
-    v2 = ctx->hash[2]; v3 = ctx->hash[3];
+    v0 = ctx->hash[0];
+    v1 = ctx->hash[1];
+    v2 = ctx->hash[2];
+    v3 = ctx->hash[3];
     v4 = ctx->hash[4];
 #endif
 
@@ -131,7 +134,8 @@ VOID_RETURN sha1_compile(sha1_ctx ctx[1])
     five_cycle(v, ch, 0x5a827999,  0);
     five_cycle(v, ch, 0x5a827999,  5);
     five_cycle(v, ch, 0x5a827999, 10);
-    one_cycle(v,0,1,2,3,4, ch, 0x5a827999, hf(15)); \
+    one_cycle(v,0,1,2,3,4, ch, 0x5a827999, hf(15));
+    \
 
 #undef  hf
 #define hf(i) (w[(i) & 15] = rotl32(                    \
@@ -159,12 +163,16 @@ VOID_RETURN sha1_compile(sha1_ctx ctx[1])
     five_cycle(v, parity, 0xca62c1d6,  75);
 
 #ifdef ARRAY
-    ctx->hash[0] += v[0]; ctx->hash[1] += v[1];
-    ctx->hash[2] += v[2]; ctx->hash[3] += v[3];
+    ctx->hash[0] += v[0];
+    ctx->hash[1] += v[1];
+    ctx->hash[2] += v[2];
+    ctx->hash[3] += v[3];
     ctx->hash[4] += v[4];
 #else
-    ctx->hash[0] += v0; ctx->hash[1] += v1;
-    ctx->hash[2] += v2; ctx->hash[3] += v3;
+    ctx->hash[0] += v0;
+    ctx->hash[1] += v1;
+    ctx->hash[2] += v2;
+    ctx->hash[3] += v3;
     ctx->hash[4] += v4;
 #endif
 }
@@ -183,8 +191,9 @@ VOID_RETURN sha1_begin(sha1_ctx ctx[1])
 /* call the hash_compile function as required.              */
 
 VOID_RETURN sha1_hash(const unsigned char data[], unsigned long len, sha1_ctx ctx[1])
-{   uint_32t pos = (uint_32t)(ctx->count[0] & SHA1_MASK),
-            space = SHA1_BLOCK_SIZE - pos;
+{
+    uint_32t pos = (uint_32t)(ctx->count[0] & SHA1_MASK),
+             space = SHA1_BLOCK_SIZE - pos;
     const unsigned char *sp = data;
 
     if((ctx->count[0] += len) < len)
@@ -193,7 +202,10 @@ VOID_RETURN sha1_hash(const unsigned char data[], unsigned long len, sha1_ctx ct
     while(len >= space)     /* tranfer whole blocks if possible  */
     {
         memcpy(((unsigned char*)ctx->wbuf) + pos, sp, space);
-        sp += space; len -= space; space = SHA1_BLOCK_SIZE; pos = 0;
+        sp += space;
+        len -= space;
+        space = SHA1_BLOCK_SIZE;
+        pos = 0;
         bsw_32(ctx->wbuf, SHA1_BLOCK_SIZE >> 2);
         sha1_compile(ctx);
     }
@@ -204,7 +216,8 @@ VOID_RETURN sha1_hash(const unsigned char data[], unsigned long len, sha1_ctx ct
 /* SHA1 final padding and digest calculation  */
 
 VOID_RETURN sha1_end(unsigned char hval[], sha1_ctx ctx[1])
-{   uint_32t    i = (uint_32t)(ctx->count[0] & SHA1_MASK);
+{
+    uint_32t    i = (uint_32t)(ctx->count[0] & SHA1_MASK);
 
     /* put bytes in the buffer in an order in which references to   */
     /* 32-bit words will put bytes with lower addresses into the    */
@@ -248,9 +261,12 @@ VOID_RETURN sha1_end(unsigned char hval[], sha1_ctx ctx[1])
 }
 
 VOID_RETURN sha1(unsigned char hval[], const unsigned char data[], unsigned long len)
-{   sha1_ctx    cx[1];
+{
+    sha1_ctx    cx[1];
 
-    sha1_begin(cx); sha1_hash(data, len, cx); sha1_end(hval, cx);
+    sha1_begin(cx);
+    sha1_hash(data, len, cx);
+    sha1_end(hval, cx);
 }
 
 #if defined(__cplusplus)

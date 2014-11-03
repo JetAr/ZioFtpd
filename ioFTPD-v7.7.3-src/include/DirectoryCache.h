@@ -64,15 +64,15 @@
 
 typedef struct _FILECONTEXT
 {
-	LPVOID			lpData;
-	DWORD			dwData;
+    LPVOID			lpData;
+    DWORD			dwData;
 
 } FILECONTEXT, * LPFILECONTEXT;
 
 typedef struct _FSEARCH
 {
-	DWORD	dwFileAttributes;
-	LPTSTR	tszFileName;
+    DWORD	dwFileAttributes;
+    LPTSTR	tszFileName;
 
 } FSEARCH, * LPFSEARCH;
 
@@ -86,132 +86,137 @@ typedef struct _FSEARCH
 //       so the layout is struct+filename+fullpath
 typedef struct _FILEINFO
 {
-	DWORD             dwSafety;
-	LONG volatile	  lReferenceCount;
-	UINT64			  FileSize;
-	DWORD			  dwSubDirectories;
-	FILETIME		  ftModificationTime;
-	FILETIME		  ftAlternateTime;
-	UINT32			  Uid;
-	UINT32			  Gid;
-	DWORD             dwUploadTimeInMs;
-	DWORD			  dwFileMode;
-	DWORD volatile	  dwFileAttributes;
-	FILECONTEXT		  Context;
-	struct _FILEINFO *lpLinkedRoot;
-	DWORD			  dwFileName;
-	TCHAR			  tszFileName[1];
+    DWORD             dwSafety;
+    LONG volatile	  lReferenceCount;
+    UINT64			  FileSize;
+    DWORD			  dwSubDirectories;
+    FILETIME		  ftModificationTime;
+    FILETIME		  ftAlternateTime;
+    UINT32			  Uid;
+    UINT32			  Gid;
+    DWORD             dwUploadTimeInMs;
+    DWORD			  dwFileMode;
+    DWORD volatile	  dwFileAttributes;
+    FILECONTEXT		  Context;
+    struct _FILEINFO *lpLinkedRoot;
+    DWORD			  dwFileName;
+    TCHAR			  tszFileName[1];
 
 } FILEINFO, * LPFILEINFO;
 
 
 typedef struct _DIRECTORYINFO
 {
-	LONG volatile		   lReferenceCount;
-	LPFILEINFO			  *lpFileInfo;
-	LPFILEINFO			   lpRootEntry;
-	struct _DIRECTORYINFO *lpLinkedInfo;
-	DWORD				   dwDirectorySize;
-	DWORD			       dwRealPath;
-	TCHAR			       tszRealPath[1];
+    LONG volatile		   lReferenceCount;
+    LPFILEINFO			  *lpFileInfo;
+    LPFILEINFO			   lpRootEntry;
+    struct _DIRECTORYINFO *lpLinkedInfo;
+    DWORD				   dwDirectorySize;
+    DWORD			       dwRealPath;
+    TCHAR			       tszRealPath[1];
 
 } DIRECTORYINFO, * LPDIRECTORYINFO;
 
 
 typedef struct _DIRECTORYCACHEINFO
 {
-	LONG	lHits;
-	LONG	lMisses;
-	LONG	lFlushes;
-	LONG	lCollisions;
+    LONG	lHits;
+    LONG	lMisses;
+    LONG	lFlushes;
+    LONG	lCollisions;
 
 } DIRECTORYCACHEINFO, *LPDIRECTORYCACHEINFO;
 
 
 typedef struct _DIRECTORY
 {
-	struct _DIRECTORY	*lpPrev;
-	struct _DIRECTORY	*lpNext;
+    struct _DIRECTORY	*lpPrev;
+    struct _DIRECTORY	*lpNext;
 
-	HANDLE				hEvent;
-	LONG volatile		lForceUpdate;
-	BOOL				bPopulated;
-	BOOL                bHasFakeSubDirs;
-	BOOL                bLocked;
-	LONG 				lReferenceCount;
-	FILETIME			ftCacheTime;
-	LPDIRECTORYINFO		lpDirectoryInfo;
-	UINT32				Hash;
-	DWORD				dwFileName;
-	TCHAR				tszFileName[1];	
+    HANDLE				hEvent;
+    LONG volatile		lForceUpdate;
+    BOOL				bPopulated;
+    BOOL                bHasFakeSubDirs;
+    BOOL                bLocked;
+    LONG 				lReferenceCount;
+    FILETIME			ftCacheTime;
+    LPDIRECTORYINFO		lpDirectoryInfo;
+    UINT32				Hash;
+    DWORD				dwFileName;
+    TCHAR				tszFileName[1];
 
 } DIRECTORY, * LPDIRECTORY;
 
 typedef struct _DIRECTORYTABLE
 {
-	LPDIRECTORY			*lpDirectory;
-	DWORD				dwDirectories;
-	DWORD				dwAllocated;
-	LPDIRECTORY			lpDirectoryList[2];
-	CRITICAL_SECTION	CriticalSection;
+    LPDIRECTORY			*lpDirectory;
+    DWORD				dwDirectories;
+    DWORD				dwAllocated;
+    LPDIRECTORY			lpDirectoryList[2];
+    CRITICAL_SECTION	CriticalSection;
 
 } DIRECTORYTABLE, * LPDIRECTORYTABLE;
 
 typedef struct _VFSUPDATE
 {
-	UINT32		Uid;
-	UINT32		Gid;
-	DWORD		dwFileMode;
-	FILETIME	ftAlternateTime;  // only used for dirs
-	DWORD       dwUploadTimeInMs; // only used for files
-	FILECONTEXT	Context;
+    UINT32		Uid;
+    UINT32		Gid;
+    DWORD		dwFileMode;
+    FILETIME	ftAlternateTime;  // only used for dirs
+    DWORD       dwUploadTimeInMs; // only used for files
+    FILECONTEXT	Context;
 
 } VFSUPDATE, * LPVFSUPDATE;
 
 typedef struct _FIND
 {
-	LPDIRECTORYINFO	lpDirectoryInfo;
-	DWORD			dwOffset;
-	TCHAR			tszFilter[1];
+    LPDIRECTORYINFO	lpDirectoryInfo;
+    DWORD			dwOffset;
+    TCHAR			tszFilter[1];
 
 } FIND, *LPFIND;
 
 // DELETELIST already used by List.h
 typedef struct _DELETELIST
 {
-	struct _DELETELIST	*lpNext;
-	DWORD			dwFileName;
-	TCHAR			tszFileName[1];
+    struct _DELETELIST	*lpNext;
+    DWORD			dwFileName;
+    TCHAR			tszFileName[1];
 } *LPDELETELIST;
 
 
 #if 1
 // The is from DDK/ntifs.h which really should be available to the SDK...
 # define SYMLINK_FLAG_RELATIVE   1
-typedef struct _REPARSE_DATA_BUFFER {
-	ULONG  ReparseTag;
-	USHORT ReparseDataLength;
-	USHORT Reserved;
-	union {
-		struct {
-			USHORT SubstituteNameOffset;
-			USHORT SubstituteNameLength;
-			USHORT PrintNameOffset;
-			USHORT PrintNameLength;
-			ULONG Flags;
-			WCHAR PathBuffer[1];
-		} SymbolicLinkReparseBuffer;
-		struct {
-			USHORT SubstituteNameOffset;
-			USHORT SubstituteNameLength;
-			USHORT PrintNameOffset;
-			USHORT PrintNameLength;
-			WCHAR PathBuffer[1];
-		} MountPointReparseBuffer;
-		struct {
-			UCHAR  DataBuffer[1];
-		} GenericReparseBuffer;
-	} DUMMYUNIONNAME;
+typedef struct _REPARSE_DATA_BUFFER
+{
+    ULONG  ReparseTag;
+    USHORT ReparseDataLength;
+    USHORT Reserved;
+    union
+    {
+        struct
+        {
+            USHORT SubstituteNameOffset;
+            USHORT SubstituteNameLength;
+            USHORT PrintNameOffset;
+            USHORT PrintNameLength;
+            ULONG Flags;
+            WCHAR PathBuffer[1];
+        } SymbolicLinkReparseBuffer;
+        struct
+        {
+            USHORT SubstituteNameOffset;
+            USHORT SubstituteNameLength;
+            USHORT PrintNameOffset;
+            USHORT PrintNameLength;
+            WCHAR PathBuffer[1];
+        } MountPointReparseBuffer;
+        struct
+        {
+            UCHAR  DataBuffer[1];
+        } GenericReparseBuffer;
+    } DUMMYUNIONNAME;
 } REPARSE_DATA_BUFFER, *LPREPARSE_DATA_BUFFER;
 
 // This is defined here when we are using _WIN32_WINNT of 0x403 since it isn't defined until 0x500
@@ -252,7 +257,7 @@ BOOL Access(LPUSERFILE lpUserFile, LPFILEINFO lpFileInfo, DWORD dwMode);
 
 BOOL IoDeleteFile(LPTSTR tszFileName, DWORD dwFileName);
 BOOL IoMoveFile(LPTSTR tszExistingFileName,
-                       LPTSTR tszNewFileName);
+                LPTSTR tszNewFileName);
 BOOL GetFileInfo2(LPTSTR tszFileName, LPFILEINFO *lpFileInfo, BOOL bNoCheck, LPDIRECTORYINFO *lppDirInfo);
 
 INT __cdecl CompareFileName(LPCVOID *lpItem1, LPCVOID *lpItem2);

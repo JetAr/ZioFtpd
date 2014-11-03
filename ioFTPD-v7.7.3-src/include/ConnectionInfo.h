@@ -23,23 +23,23 @@
 typedef struct _CONNECTION_INFO
 {
     //z 客户端地址
-	struct sockaddr_in	ClientAddress;
+    struct sockaddr_in	ClientAddress;
     //z server 地址
-	struct sockaddr_in	LocalAddress;
-	LPSTR				szIdent;
+    struct sockaddr_in	LocalAddress;
+    LPSTR				szIdent;
     //z 机器名
-	LPSTR				szHostName;
+    LPSTR				szHostName;
     //z 尝试登录的次数？
-	UINT				uLoginAttempt;
+    UINT				uLoginAttempt;
     //z 时间
-	time_t				tLogin;
-	LPIOSERVICE			lpService;
-	LPIOSERVICE			lpDoService; // needed by SERVICE cookie
-	LPIODEVICE          lpDevice;    // needed by ident routines and DEVICE cookie, else ignored
-	LPIODEVICE          lpDoDevice;  // needed by DEVICE cookie
-	DWORD				dwStatus;
-	DWORD				dwUniqueId;
-	struct _CLIENT     *lpClient;    // readonly, don't modify outside of lock on id!
-	LPHOSTINFO			lpHostInfo;
+    time_t				tLogin;
+    LPIOSERVICE			lpService;
+    LPIOSERVICE			lpDoService; // needed by SERVICE cookie
+    LPIODEVICE          lpDevice;    // needed by ident routines and DEVICE cookie, else ignored
+    LPIODEVICE          lpDoDevice;  // needed by DEVICE cookie
+    DWORD				dwStatus;
+    DWORD				dwUniqueId;
+    struct _CLIENT     *lpClient;    // readonly, don't modify outside of lock on id!
+    LPHOSTINFO			lpHostInfo;
 
 } CONNECTION_INFO, * PCONNECTION_INFO;

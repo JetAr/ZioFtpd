@@ -25,43 +25,43 @@
 // existing matching item.
 INT QuickInsert(LPVOID *List, INT Items, LPVOID Item, QUICKCOMPAREPROC Comp)
 {
-	register ULONG	Best, Left, Shift;
-	register LPVOID	lpItem;
-	register INT	i;
+    register ULONG	Best, Left, Shift;
+    register LPVOID	lpItem;
+    register INT	i;
 
-	// Handle adding an item to the end of the list as a special case because
-	// on NTFS the FindNextFile() system call returns items already in
-	// alphabetical order although not separated via dir/file, it
-	// is still a big savings.
-	if (!Items || Comp(&Item, &List[Items-1]) > 0)
-	{
-		List[Items]	= Item;
-		return 0;
-	}
+    // Handle adding an item to the end of the list as a special case because
+    // on NTFS the FindNextFile() system call returns items already in
+    // alphabetical order although not separated via dir/file, it
+    // is still a big savings.
+    if (!Items || Comp(&Item, &List[Items-1]) > 0)
+    {
+        List[Items]	= Item;
+        return 0;
+    }
 
-	Best	= 0;
-	lpItem	= &Item;
+    Best	= 0;
+    lpItem	= &Item;
 
-	for (Left = Shift = Items;Shift;Left -= Shift)
-	{
-		Shift	= Left >> 1;
+    for (Left = Shift = Items; Shift; Left -= Shift)
+    {
+        Shift	= Left >> 1;
 
-		if ((i = Comp(lpItem, &List[Shift + Best])) > 0)
-		{
-			//	Higher
-			Best	+= (Shift ? Shift : 1);
-		}
-		else if (! i) return Shift + Best + 1;
-	}
-	//	Cycle memory
-	if ((Items -= Best) > 0)
-	{
-		MoveMemory(&List[Best + 1], &List[Best], Items * sizeof(LPVOID));
-	}
+        if ((i = Comp(lpItem, &List[Shift + Best])) > 0)
+        {
+            //	Higher
+            Best	+= (Shift ? Shift : 1);
+        }
+        else if (! i) return Shift + Best + 1;
+    }
+    //	Cycle memory
+    if ((Items -= Best) > 0)
+    {
+        MoveMemory(&List[Best + 1], &List[Best], Items * sizeof(LPVOID));
+    }
 
-	List[Best]	= Item;
+    List[Best]	= Item;
 
-	return 0;
+    return 0;
 }
 
 
@@ -70,77 +70,77 @@ INT QuickInsert(LPVOID *List, INT Items, LPVOID Item, QUICKCOMPAREPROC Comp)
 // inserted into.
 INT QuickInsert2(register LPVOID *List, INT Items, LPVOID Item, QUICKCOMPAREPROC Comp)
 {
-	register INT	Best, Left, Shift;
-	register LPVOID	lpItem;
-	register INT	i;
+    register INT	Best, Left, Shift;
+    register LPVOID	lpItem;
+    register INT	i;
 
-	// Handle adding an item to the end of the list as a special case because
-	// on NTFS the FindNextFile() system call returns items already in
-	// alphabetical order although not separated via dir/file, it
-	// is still a big savings.
-	if (!Items || Comp(&Item, &List[Items-1]) > 0)
-	{
-		List[Items]	= Item;
-		return -Items - 1;
-	}
+    // Handle adding an item to the end of the list as a special case because
+    // on NTFS the FindNextFile() system call returns items already in
+    // alphabetical order although not separated via dir/file, it
+    // is still a big savings.
+    if (!Items || Comp(&Item, &List[Items-1]) > 0)
+    {
+        List[Items]	= Item;
+        return -Items - 1;
+    }
 
-	Best	= 0;
-	lpItem	= &Item;
+    Best	= 0;
+    lpItem	= &Item;
 
-	for (Left = Shift = Items;Shift;Left -= Shift)
-	{
-		Shift	= Left >> 1;
+    for (Left = Shift = Items; Shift; Left -= Shift)
+    {
+        Shift	= Left >> 1;
 
-		if ((i = Comp(lpItem, &List[Shift + Best])) > 0)
-		{
-			//	Higher
-			Best	+= (Shift ? Shift : 1);
-		}
-		else if (! i) return Shift + Best + 1;
-	}
-	//	Cycle memory
-	if ((Items -= Best) > 0)
-	{
-		MoveMemory(&List[Best + 1], &List[Best], Items * sizeof(LPVOID));
-	}
+        if ((i = Comp(lpItem, &List[Shift + Best])) > 0)
+        {
+            //	Higher
+            Best	+= (Shift ? Shift : 1);
+        }
+        else if (! i) return Shift + Best + 1;
+    }
+    //	Cycle memory
+    if ((Items -= Best) > 0)
+    {
+        MoveMemory(&List[Best + 1], &List[Best], Items * sizeof(LPVOID));
+    }
 
-	List[Best]	= Item;
+    List[Best]	= Item;
 
-	return -Best-1;
+    return -Best-1;
 }
 
 
 // return 0 if no item found, else index (from 1) of the existing matching item.
 INT QuickFind(register LPVOID *List, INT Items, LPVOID Item, QUICKCOMPAREPROC Comp)
 {
-	register ULONG	Best, Left, Shift;
-	register LPVOID	lpItem;
-	register INT	i;
+    register ULONG	Best, Left, Shift;
+    register LPVOID	lpItem;
+    register INT	i;
 
-	// Handle adding an item to the end of the list as a special case because
-	// on NTFS the FindNextFile() system call returns items already in
-	// alphabetical order although not separated via dir/file, it
-	// is still a big savings.
-	if (!Items || Comp(&Item, &List[Items-1]) > 0)
-	{
-		return 0;
-	}
+    // Handle adding an item to the end of the list as a special case because
+    // on NTFS the FindNextFile() system call returns items already in
+    // alphabetical order although not separated via dir/file, it
+    // is still a big savings.
+    if (!Items || Comp(&Item, &List[Items-1]) > 0)
+    {
+        return 0;
+    }
 
-	Best	= 0;
-	lpItem	= &Item;
+    Best	= 0;
+    lpItem	= &Item;
 
-	for (Left = Shift = Items;Shift;Left -= Shift)
-	{
-		Shift	= Left >> 1;
+    for (Left = Shift = Items; Shift; Left -= Shift)
+    {
+        Shift	= Left >> 1;
 
-		if ((i = Comp(lpItem, &List[Shift + Best])) > 0)
-		{
-			//	Higher
-			Best	+= (Shift ? Shift : 1);
-		}
-		else if (! i) return Shift + Best + 1;
-	}
-	return 0;
+        if ((i = Comp(lpItem, &List[Shift + Best])) > 0)
+        {
+            //	Higher
+            Best	+= (Shift ? Shift : 1);
+        }
+        else if (! i) return Shift + Best + 1;
+    }
+    return 0;
 }
 
 
@@ -149,41 +149,41 @@ INT QuickFind(register LPVOID *List, INT Items, LPVOID Item, QUICKCOMPAREPROC Co
 
 LPVOID QuickDelete(LPVOID *List, INT Items, LPVOID Item, QUICKCOMPAREPROC Comp, QUICKCHECKPROC Check)
 {
-	register LPVOID	*Result, Return;
-	register INT	iSize;
+    register LPVOID	*Result, Return;
+    register INT	iSize;
 
 
-	Result	= (LPVOID *)bsearch(&Item, List, Items, sizeof(LPVOID), Comp);
+    Result	= (LPVOID *)bsearch(&Item, List, Items, sizeof(LPVOID), Comp);
 
-	if (Result)
-	{
-		Return	= Result[0];
+    if (Result)
+    {
+        Return	= Result[0];
 
-		if (! Check || ! Check(Return))
-		{
-			iSize	= &List[Items] - &Result[1];
-			MoveMemory(&Result[0], &Result[1], iSize * sizeof(LPVOID));
-		}
-		return Return;
-	}
-	return NULL;
+        if (! Check || ! Check(Return))
+        {
+            iSize	= &List[Items] - &Result[1];
+            MoveMemory(&Result[0], &Result[1], iSize * sizeof(LPVOID));
+        }
+        return Return;
+    }
+    return NULL;
 }
 
 
 // dwPos is from 1
 LPVOID QuickDeleteIndex(LPVOID *List, INT Items, INT dwPos)
 {
-	LPVOID *Result, Return;
-	int iSize;
+    LPVOID *Result, Return;
+    int iSize;
 
-	if (dwPos > Items)
-	{
-		return NULL;
-	}
-	Result = &List[dwPos-1];
-	Return = Result[0];
+    if (dwPos > Items)
+    {
+        return NULL;
+    }
+    Result = &List[dwPos-1];
+    Return = Result[0];
 
-	iSize	= &List[Items] - &Result[1];
-	MoveMemory(&Result[0], &Result[1], iSize * sizeof(LPVOID));
-	return Return;
+    iSize	= &List[Items] - &Result[1];
+    MoveMemory(&Result[0], &Result[1], iSize * sizeof(LPVOID));
+    return Return;
 }

@@ -21,14 +21,14 @@
 //z buffer 结构
 typedef struct _BUFFER
 {
-	//z buffer 中已填充的字节的数目
-	DWORD				len;	// Bytes in buffer
-	//z 整个buffer的尺寸
-	DWORD				size;	// Size of buffer
-	//z buf 申请的内存
-	CHAR				*buf;	// Pointer to buffer
-	//z 类型
-	DWORD				dwType;
+    //z buffer 中已填充的字节的数目
+    DWORD				len;	// Bytes in buffer
+    //z 整个buffer的尺寸
+    DWORD				size;	// Size of buffer
+    //z buf 申请的内存
+    CHAR				*buf;	// Pointer to buffer
+    //z 类型
+    DWORD				dwType;
 
 } BUFFER, * LPBUFFER;
 

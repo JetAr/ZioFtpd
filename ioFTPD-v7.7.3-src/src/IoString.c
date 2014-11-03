@@ -29,73 +29,73 @@
 
 BOOL SplitString(LPTSTR tszStringIn, LPIO_STRING lpStringOut)
 {
-	TCHAR	*tpQuote, *tpLast, *tpSeeker;
-	LPVOID	lpMemory;
-	DWORD	dwStringIn, dwMarks, dwMarksAllocated;
+    TCHAR	*tpQuote, *tpLast, *tpSeeker;
+    LPVOID	lpMemory;
+    DWORD	dwStringIn, dwMarks, dwMarksAllocated;
 
-	dwStringIn	= _tcslen(tszStringIn) + 1;
-	if (dwStringIn == 1) return TRUE;
+    dwStringIn	= _tcslen(tszStringIn) + 1;
+    if (dwStringIn == 1) return TRUE;
 
-	dwMarks				= 0;
-	dwMarksAllocated	= 32;
+    dwMarks				= 0;
+    dwMarksAllocated	= 32;
 
-	if (! (lpStringOut->pMarks = (TCHAR **)Allocate("SplitString:Marks", dwMarksAllocated * sizeof(TCHAR *)))) return TRUE;
-	if (! (lpMemory = Allocate("SplitString:Buffer", (dwStringIn * sizeof(TCHAR)) * 2))) return TRUE;
+    if (! (lpStringOut->pMarks = (TCHAR **)Allocate("SplitString:Marks", dwMarksAllocated * sizeof(TCHAR *)))) return TRUE;
+    if (! (lpMemory = Allocate("SplitString:Buffer", (dwStringIn * sizeof(TCHAR)) * 2))) return TRUE;
 
-	lpStringOut->dwShift	= 0;
-	lpStringOut->pString	= (LPTSTR)lpMemory;
-	lpStringOut->pBuffer	= &((LPTSTR)lpMemory)[dwStringIn];
+    lpStringOut->dwShift	= 0;
+    lpStringOut->pString	= (LPTSTR)lpMemory;
+    lpStringOut->pBuffer	= &((LPTSTR)lpMemory)[dwStringIn];
 
-	CopyMemory(lpStringOut->pString, tszStringIn, dwStringIn);
+    CopyMemory(lpStringOut->pString, tszStringIn, dwStringIn);
 
-	for (tpSeeker = tpLast = lpStringOut->pString;;tpSeeker++)
-	{
-		switch (tpSeeker[0])
-		{
-		case _TEXT('\\'):
-			if (tpSeeker[1] != _TEXT('\0')) tpSeeker++;
-			break;
+    for (tpSeeker = tpLast = lpStringOut->pString;; tpSeeker++)
+    {
+        switch (tpSeeker[0])
+        {
+        case _TEXT('\\'):
+            if (tpSeeker[1] != _TEXT('\0')) tpSeeker++;
+            break;
 
-		case _TEXT('"'):
-			if ((tpQuote = _tcschr(&tpSeeker[1], _TEXT('"')))) tpSeeker	= tpQuote;
-			break;
+        case _TEXT('"'):
+            if ((tpQuote = _tcschr(&tpSeeker[1], _TEXT('"')))) tpSeeker	= tpQuote;
+            break;
 
-		case _TEXT(' '):
-		case _TEXT('\0'):
-			if (tpSeeker != tpLast)
-			{
-				if ((dwMarks + 1) >= dwMarksAllocated)
-				{
-					dwMarksAllocated	*= 2;
+        case _TEXT(' '):
+        case _TEXT('\0'):
+            if (tpSeeker != tpLast)
+            {
+                if ((dwMarks + 1) >= dwMarksAllocated)
+                {
+                    dwMarksAllocated	*= 2;
 
-					if (! (lpMemory = ReAllocate(lpStringOut->pMarks, NULL, dwMarksAllocated * sizeof(TCHAR *))))
-					{
-						Free(lpStringOut->pString);
-						Free(lpStringOut->pMarks);
-						return TRUE;
-					}
-					lpStringOut->pMarks	= (TCHAR **)lpMemory;
-				}
+                    if (! (lpMemory = ReAllocate(lpStringOut->pMarks, NULL, dwMarksAllocated * sizeof(TCHAR *))))
+                    {
+                        Free(lpStringOut->pString);
+                        Free(lpStringOut->pMarks);
+                        return TRUE;
+                    }
+                    lpStringOut->pMarks	= (TCHAR **)lpMemory;
+                }
 
-				lpStringOut->pMarks[dwMarks++]	= tpLast;
-				lpStringOut->pMarks[dwMarks++]	= tpSeeker;
+                lpStringOut->pMarks[dwMarks++]	= tpLast;
+                lpStringOut->pMarks[dwMarks++]	= tpSeeker;
 
-				if (tpSeeker[0] == _TEXT('\0'))
-				{
-					lpStringOut->dwMarks	= dwMarks >> 1;
-					return (dwMarks ? FALSE : TRUE);
-				}
-				tpSeeker[0]	= _TEXT('\0');
-			}
-			else if (tpSeeker[0] == _TEXT('\0'))
-			{
-				lpStringOut->dwMarks	= dwMarks >> 1;
-				return (dwMarks ? FALSE : TRUE);
-			}
-			tpLast	= &tpSeeker[1];
-			break;
-		}
-	}
+                if (tpSeeker[0] == _TEXT('\0'))
+                {
+                    lpStringOut->dwMarks	= dwMarks >> 1;
+                    return (dwMarks ? FALSE : TRUE);
+                }
+                tpSeeker[0]	= _TEXT('\0');
+            }
+            else if (tpSeeker[0] == _TEXT('\0'))
+            {
+                lpStringOut->dwMarks	= dwMarks >> 1;
+                return (dwMarks ? FALSE : TRUE);
+            }
+            tpLast	= &tpSeeker[1];
+            break;
+        }
+    }
 }
 
 
@@ -104,158 +104,158 @@ BOOL SplitString(LPTSTR tszStringIn, LPIO_STRING lpStringOut)
 
 BOOL ConcatString(LPIO_STRING lpDestinationString, LPIO_STRING lpSourceString)
 {
-	TCHAR	*tpBuffer, *tpString, **tpMarks, **tpOldMarks, *tpOldString;
-	DWORD	dwStringMarks[2], dwStringLength[2];
-	DWORD	i;
+    TCHAR	*tpBuffer, *tpString, **tpMarks, **tpOldMarks, *tpOldString;
+    DWORD	dwStringMarks[2], dwStringLength[2];
+    DWORD	i;
 
-	dwStringMarks[0]	= lpDestinationString->dwMarks << 1;
-	dwStringMarks[1]	= lpSourceString->dwMarks << 1;
-	//	Calculate string lengths
-	dwStringLength[0]	= (dwStringMarks[0] ?
-		(ULONG)lpDestinationString->pMarks[dwStringMarks[0] - 1] - (ULONG)lpDestinationString->pMarks[0] + 1 : 0);
-	dwStringLength[1]	= (dwStringMarks[1] ?
-		(ULONG)lpSourceString->pMarks[dwStringMarks[1] - 1] - (ULONG)lpSourceString->pMarks[0] + 1 : 0);
+    dwStringMarks[0]	= lpDestinationString->dwMarks << 1;
+    dwStringMarks[1]	= lpSourceString->dwMarks << 1;
+    //	Calculate string lengths
+    dwStringLength[0]	= (dwStringMarks[0] ?
+                           (ULONG)lpDestinationString->pMarks[dwStringMarks[0] - 1] - (ULONG)lpDestinationString->pMarks[0] + 1 : 0);
+    dwStringLength[1]	= (dwStringMarks[1] ?
+                           (ULONG)lpSourceString->pMarks[dwStringMarks[1] - 1] - (ULONG)lpSourceString->pMarks[0] + 1 : 0);
 
-	if (! (tpString = (TCHAR *)Allocate("ConcatString:Buffer", (dwStringLength[0] + dwStringLength[1]) * 2))) return TRUE;
-	if (! (tpMarks = (TCHAR **)Allocate("ConcatString:Marks", (dwStringMarks[0] + dwStringMarks[1]) * sizeof(TCHAR *))))
-	{
-		//	Out of memory
-		Free(tpString);
-		return TRUE;
-	}
+    if (! (tpString = (TCHAR *)Allocate("ConcatString:Buffer", (dwStringLength[0] + dwStringLength[1]) * 2))) return TRUE;
+    if (! (tpMarks = (TCHAR **)Allocate("ConcatString:Marks", (dwStringMarks[0] + dwStringMarks[1]) * sizeof(TCHAR *))))
+    {
+        //	Out of memory
+        Free(tpString);
+        return TRUE;
+    }
 
-	tpOldMarks	= lpDestinationString->pMarks;
-	tpOldString	= lpDestinationString->pString;
-	tpBuffer	= &tpString[dwStringLength[0] + dwStringLength[1]];
-	//	Update destination string's contents
-	lpDestinationString->dwMarks	+= (dwStringMarks[1] >> 1);
-	lpDestinationString->pMarks		= tpMarks;
-	lpDestinationString->pBuffer	= tpBuffer;
-	lpDestinationString->pString	= tpString;
+    tpOldMarks	= lpDestinationString->pMarks;
+    tpOldString	= lpDestinationString->pString;
+    tpBuffer	= &tpString[dwStringLength[0] + dwStringLength[1]];
+    //	Update destination string's contents
+    lpDestinationString->dwMarks	+= (dwStringMarks[1] >> 1);
+    lpDestinationString->pMarks		= tpMarks;
+    lpDestinationString->pBuffer	= tpBuffer;
+    lpDestinationString->pString	= tpString;
 
-	CopyMemory(tpString, tpOldMarks[0], dwStringLength[0]);
-	tpString	= (TCHAR *)((ULONG)tpString - (ULONG)tpOldMarks[0]);
+    CopyMemory(tpString, tpOldMarks[0], dwStringLength[0]);
+    tpString	= (TCHAR *)((ULONG)tpString - (ULONG)tpOldMarks[0]);
 
-	for (i = 0 ;i < dwStringMarks[0];i++)
-	{
-		(tpMarks++)[0]	= (TCHAR *)((ULONG)tpString + (ULONG)tpOldMarks[i]);
-	}
+    for (i = 0 ; i < dwStringMarks[0]; i++)
+    {
+        (tpMarks++)[0]	= (TCHAR *)((ULONG)tpString + (ULONG)tpOldMarks[i]);
+    }
 
-	Free(tpOldString);
-	Free(tpOldMarks);
-	tpOldMarks	= lpSourceString->pMarks;
+    Free(tpOldString);
+    Free(tpOldMarks);
+    tpOldMarks	= lpSourceString->pMarks;
 
-	if (dwStringLength[1])
-	{
-		CopyMemory(&lpDestinationString->pString[dwStringLength[0] / sizeof(TCHAR)], tpOldMarks[0], dwStringLength[1]);
-		tpString	= (TCHAR *)((ULONG)lpDestinationString->pString + dwStringLength[0] - (ULONG)tpOldMarks[0]);
-	}
+    if (dwStringLength[1])
+    {
+        CopyMemory(&lpDestinationString->pString[dwStringLength[0] / sizeof(TCHAR)], tpOldMarks[0], dwStringLength[1]);
+        tpString	= (TCHAR *)((ULONG)lpDestinationString->pString + dwStringLength[0] - (ULONG)tpOldMarks[0]);
+    }
 
-	for (i = 0;i < dwStringMarks[1];i++)
-	{
-		(tpMarks++)[0]	= (TCHAR *)((ULONG)tpString + (ULONG)tpOldMarks[i]);
-	}
+    for (i = 0; i < dwStringMarks[1]; i++)
+    {
+        (tpMarks++)[0]	= (TCHAR *)((ULONG)tpString + (ULONG)tpOldMarks[i]);
+    }
 
-	return FALSE;
+    return FALSE;
 }
 
 
 
 BOOL AppendArgToString(LPIO_STRING lpStringOut, LPTSTR tszIn)
 {
-	TCHAR	*tpString, **tpMarks, **tpOldMarks, *tpOldString;
-	DWORD	dwLen, dwStringMarks, dwStringLength;
-	DWORD	i;
+    TCHAR	*tpString, **tpMarks, **tpOldMarks, *tpOldString;
+    DWORD	dwLen, dwStringMarks, dwStringLength;
+    DWORD	i;
 
-	dwLen = _tcslen(tszIn);
-	if (!dwLen) return FALSE;
+    dwLen = _tcslen(tszIn);
+    if (!dwLen) return FALSE;
 
-	dwStringMarks = lpStringOut->dwMarks << 1;
-	dwStringLength = (dwStringMarks ? (ULONG)lpStringOut->pMarks[dwStringMarks - 1] - (ULONG)lpStringOut->pMarks[0] + 1 : 0);
+    dwStringMarks = lpStringOut->dwMarks << 1;
+    dwStringLength = (dwStringMarks ? (ULONG)lpStringOut->pMarks[dwStringMarks - 1] - (ULONG)lpStringOut->pMarks[0] + 1 : 0);
 
-	if (! (tpString = (TCHAR *)Allocate("ConcatString:Buffer", (dwLen + dwStringLength + 1) * 2))) return TRUE;
-	if (! (tpMarks = (TCHAR **)Allocate("ConcatString:Marks", (dwStringMarks+2) * sizeof(TCHAR *))))
-	{
-		//	Out of memory
-		Free(tpString);
-		return TRUE;
-	}
+    if (! (tpString = (TCHAR *)Allocate("ConcatString:Buffer", (dwLen + dwStringLength + 1) * 2))) return TRUE;
+    if (! (tpMarks = (TCHAR **)Allocate("ConcatString:Marks", (dwStringMarks+2) * sizeof(TCHAR *))))
+    {
+        //	Out of memory
+        Free(tpString);
+        return TRUE;
+    }
 
-	tpOldString	= lpStringOut->pString;
-	tpOldMarks  = lpStringOut->pMarks;
+    tpOldString	= lpStringOut->pString;
+    tpOldMarks  = lpStringOut->pMarks;
 
-	lpStringOut->pString = tpString;
-	lpStringOut->pMarks  = tpMarks;
-	lpStringOut->pBuffer = &tpString[dwStringLength + dwLen];
-	lpStringOut->dwMarks++;
+    lpStringOut->pString = tpString;
+    lpStringOut->pMarks  = tpMarks;
+    lpStringOut->pBuffer = &tpString[dwStringLength + dwLen];
+    lpStringOut->dwMarks++;
 
-	CopyMemory(tpString, tpOldMarks[0], dwStringLength);
-	CopyMemory(tpString + dwStringLength, tszIn, dwLen+1);
+    CopyMemory(tpString, tpOldMarks[0], dwStringLength);
+    CopyMemory(tpString + dwStringLength, tszIn, dwLen+1);
 
-	tpString = (TCHAR *)((ULONG)tpString - (ULONG)tpOldMarks[0]);
+    tpString = (TCHAR *)((ULONG)tpString - (ULONG)tpOldMarks[0]);
 
-	for (i = 0 ;i < dwStringMarks;i++)
-	{
-		(tpMarks++)[0]	= (TCHAR *)((ULONG)tpString + (ULONG)tpOldMarks[i]);
-	}
+    for (i = 0 ; i < dwStringMarks; i++)
+    {
+        (tpMarks++)[0]	= (TCHAR *)((ULONG)tpString + (ULONG)tpOldMarks[i]);
+    }
 
-	Free(tpOldString);
-	Free(tpOldMarks);
+    Free(tpOldString);
+    Free(tpOldMarks);
 
-	*tpMarks++	= &lpStringOut->pString[dwStringLength];
-	*tpMarks    = tpMarks[-1] + dwLen;
+    *tpMarks++	= &lpStringOut->pString[dwStringLength];
+    *tpMarks    = tpMarks[-1] + dwLen;
 
-	return FALSE;
+    return FALSE;
 }
 
 
 BOOL AppendQuotedArgToString(LPIO_STRING lpStringOut, LPTSTR tszIn)
 {
-	TCHAR	*tpString, **tpMarks, **tpOldMarks, *tpOldString;
-	DWORD	dwLen, dwStringMarks, dwStringLength;
-	DWORD	i;
+    TCHAR	*tpString, **tpMarks, **tpOldMarks, *tpOldString;
+    DWORD	dwLen, dwStringMarks, dwStringLength;
+    DWORD	i;
 
-	dwLen = _tcslen(tszIn);
+    dwLen = _tcslen(tszIn);
 
-	dwStringMarks = lpStringOut->dwMarks << 1;
-	dwStringLength = (dwStringMarks ? (ULONG)lpStringOut->pMarks[dwStringMarks - 1] - (ULONG)lpStringOut->pMarks[0] + 1 : 0);
+    dwStringMarks = lpStringOut->dwMarks << 1;
+    dwStringLength = (dwStringMarks ? (ULONG)lpStringOut->pMarks[dwStringMarks - 1] - (ULONG)lpStringOut->pMarks[0] + 1 : 0);
 
-	if (! (tpString = (TCHAR *)Allocate("ConcatString:Buffer", (dwLen + dwStringLength + 3) * 2))) return TRUE;
-	if (! (tpMarks = (TCHAR **)Allocate("ConcatString:Marks", (dwStringMarks+2) * sizeof(TCHAR *))))
-	{
-		//	Out of memory
-		Free(tpString);
-		return TRUE;
-	}
+    if (! (tpString = (TCHAR *)Allocate("ConcatString:Buffer", (dwLen + dwStringLength + 3) * 2))) return TRUE;
+    if (! (tpMarks = (TCHAR **)Allocate("ConcatString:Marks", (dwStringMarks+2) * sizeof(TCHAR *))))
+    {
+        //	Out of memory
+        Free(tpString);
+        return TRUE;
+    }
 
-	tpOldString	= lpStringOut->pString;
-	tpOldMarks  = lpStringOut->pMarks;
+    tpOldString	= lpStringOut->pString;
+    tpOldMarks  = lpStringOut->pMarks;
 
-	lpStringOut->pString = tpString;
-	lpStringOut->pMarks  = tpMarks;
-	lpStringOut->pBuffer = &tpString[dwStringLength + dwLen + 2];
-	lpStringOut->dwMarks++;
+    lpStringOut->pString = tpString;
+    lpStringOut->pMarks  = tpMarks;
+    lpStringOut->pBuffer = &tpString[dwStringLength + dwLen + 2];
+    lpStringOut->dwMarks++;
 
-	CopyMemory(tpString, tpOldMarks[0], dwStringLength);
-	tpString[dwStringLength] = '"';
-	CopyMemory(tpString + dwStringLength + 1, tszIn, dwLen);
-	tpString[dwStringLength+dwLen+1] = '"';
-	tpString[dwStringLength+dwLen+2] = 0;
+    CopyMemory(tpString, tpOldMarks[0], dwStringLength);
+    tpString[dwStringLength] = '"';
+    CopyMemory(tpString + dwStringLength + 1, tszIn, dwLen);
+    tpString[dwStringLength+dwLen+1] = '"';
+    tpString[dwStringLength+dwLen+2] = 0;
 
-	tpString = (TCHAR *)((ULONG)tpString - (ULONG)tpOldMarks[0]);
+    tpString = (TCHAR *)((ULONG)tpString - (ULONG)tpOldMarks[0]);
 
-	for (i = 0 ;i < dwStringMarks;i++)
-	{
-		(tpMarks++)[0]	= (TCHAR *)((ULONG)tpString + (ULONG)tpOldMarks[i]);
-	}
+    for (i = 0 ; i < dwStringMarks; i++)
+    {
+        (tpMarks++)[0]	= (TCHAR *)((ULONG)tpString + (ULONG)tpOldMarks[i]);
+    }
 
-	Free(tpOldString);
-	Free(tpOldMarks);
+    Free(tpOldString);
+    Free(tpOldMarks);
 
-	*tpMarks++	= &lpStringOut->pString[dwStringLength];
-	*tpMarks    = tpMarks[-1] + dwLen + 2;
+    *tpMarks++	= &lpStringOut->pString[dwStringLength];
+    *tpMarks    = tpMarks[-1] + dwLen + 2;
 
-	return FALSE;
+    return FALSE;
 }
 
 
@@ -263,26 +263,26 @@ BOOL AppendQuotedArgToString(LPIO_STRING lpStringOut, LPTSTR tszIn)
 
 BOOL PushString(LPIO_STRING lpString, DWORD dwShift)
 {
-	//	Sanity check
-	if (lpString->dwMarks < dwShift) return TRUE;
-	//	Shift to right
-	lpString->dwShift	+= dwShift;
-	lpString->dwMarks	-= dwShift;
-	lpString->pMarks	= &lpString->pMarks[dwShift << 1];
+    //	Sanity check
+    if (lpString->dwMarks < dwShift) return TRUE;
+    //	Shift to right
+    lpString->dwShift	+= dwShift;
+    lpString->dwMarks	-= dwShift;
+    lpString->pMarks	= &lpString->pMarks[dwShift << 1];
 
-	return FALSE;
+    return FALSE;
 }
 
 
 
 VOID PullString(LPIO_STRING lpString, DWORD dwShift)
 {
-	//	Shift to left
-	dwShift	= min(lpString->dwShift, dwShift);
-	//	Shift to left
-	lpString->dwShift	-= dwShift;
-	lpString->dwMarks	+= dwShift;
-	lpString->pMarks	= (TCHAR **)((ULONG)lpString->pMarks - ((dwShift << 1) * sizeof(TCHAR *)));
+    //	Shift to left
+    dwShift	= min(lpString->dwShift, dwShift);
+    //	Shift to left
+    lpString->dwShift	-= dwShift;
+    lpString->dwMarks	+= dwShift;
+    lpString->pMarks	= (TCHAR **)((ULONG)lpString->pMarks - ((dwShift << 1) * sizeof(TCHAR *)));
 
 }
 
@@ -292,10 +292,10 @@ VOID PullString(LPIO_STRING lpString, DWORD dwShift)
 
 VOID FreeString(LPIO_STRING lpString)
 {
-	lpString->pMarks	= (PCHAR *)((ULONG)lpString->pMarks - (lpString->dwShift * 2 * sizeof(PCHAR)));
-	//	Free memory
-	Free(lpString->pString);
-	Free(lpString->pMarks);
+    lpString->pMarks	= (PCHAR *)((ULONG)lpString->pMarks - (lpString->dwShift * 2 * sizeof(PCHAR)));
+    //	Free memory
+    Free(lpString->pString);
+    Free(lpString->pMarks);
 }
 
 
@@ -305,33 +305,33 @@ VOID FreeString(LPIO_STRING lpString)
 
 LPTSTR GetStringRange(LPIO_STRING lpString, DWORD dwBeginIndex, DWORD dwEndIndex)
 {
-	DWORD	dwBuffer;
-	TCHAR	*tpBuffer;
+    DWORD	dwBuffer;
+    TCHAR	*tpBuffer;
 
-	if (dwEndIndex == STR_END)
-	{
-		dwEndIndex = lpString->dwMarks - 1;
-		if (dwBeginIndex >= lpString->dwMarks) return NULL;
-	}
-	else
-	{
-		if (dwBeginIndex > dwEndIndex ||
-			dwEndIndex >= lpString->dwMarks) return NULL;
-	}
+    if (dwEndIndex == STR_END)
+    {
+        dwEndIndex = lpString->dwMarks - 1;
+        if (dwBeginIndex >= lpString->dwMarks) return NULL;
+    }
+    else
+    {
+        if (dwBeginIndex > dwEndIndex ||
+                dwEndIndex >= lpString->dwMarks) return NULL;
+    }
 
-	//	Calculate string length
-	dwBuffer	= lpString->pMarks[(dwEndIndex << 1) + 1] - lpString->pMarks[dwBeginIndex << 1];
-	tpBuffer	= (TCHAR *)((ULONG)lpString->pBuffer - (ULONG)lpString->pMarks[dwBeginIndex << 1]);
-	//	Apply zero padding
-	lpString->pBuffer[dwBuffer]	= _TEXT('\0');
-	//	Copy buffer
-	CopyMemory(lpString->pBuffer, lpString->pMarks[dwBeginIndex << 1], dwBuffer * sizeof(TCHAR));
+    //	Calculate string length
+    dwBuffer	= lpString->pMarks[(dwEndIndex << 1) + 1] - lpString->pMarks[dwBeginIndex << 1];
+    tpBuffer	= (TCHAR *)((ULONG)lpString->pBuffer - (ULONG)lpString->pMarks[dwBeginIndex << 1]);
+    //	Apply zero padding
+    lpString->pBuffer[dwBuffer]	= _TEXT('\0');
+    //	Copy buffer
+    CopyMemory(lpString->pBuffer, lpString->pMarks[dwBeginIndex << 1], dwBuffer * sizeof(TCHAR));
 
-	for (;dwEndIndex > dwBeginIndex;dwEndIndex--)
-	{
-		((TCHAR *)((ULONG)tpBuffer + (ULONG)lpString->pMarks[(dwEndIndex << 1) - 1]))[0]	= _TEXT(' ');
-	}
-	return lpString->pBuffer;
+    for (; dwEndIndex > dwBeginIndex; dwEndIndex--)
+    {
+        ((TCHAR *)((ULONG)tpBuffer + (ULONG)lpString->pMarks[(dwEndIndex << 1) - 1]))[0]	= _TEXT(' ');
+    }
+    return lpString->pBuffer;
 }
 
 
@@ -339,7 +339,7 @@ LPTSTR GetStringRange(LPIO_STRING lpString, DWORD dwBeginIndex, DWORD dwEndIndex
 
 LPTSTR GetStringIndexStatic(LPIO_STRING lpString, DWORD dwIndex)
 {
-	return (dwIndex >= lpString->dwMarks ? NULL : lpString->pMarks[dwIndex << 1]);
+    return (dwIndex >= lpString->dwMarks ? NULL : lpString->pMarks[dwIndex << 1]);
 }
 
 
@@ -347,6 +347,6 @@ LPTSTR GetStringIndexStatic(LPIO_STRING lpString, DWORD dwIndex)
 
 LPSTR GetStringIndex(LPIO_STRING lpString, DWORD dwIndex)
 {
-	return (dwIndex == STR_ALL ?
-		GetStringRange(lpString, STR_BEGIN, STR_END) : GetStringRange(lpString, dwIndex, dwIndex));
+    return (dwIndex == STR_ALL ?
+            GetStringRange(lpString, STR_BEGIN, STR_END) : GetStringRange(lpString, dwIndex, dwIndex));
 }

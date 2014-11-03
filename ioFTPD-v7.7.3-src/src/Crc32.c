@@ -27,10 +27,11 @@
 
 static DWORD gf2_matrix_times(DWORD *mat, DWORD vec)
 {
-	DWORD sum;
+    DWORD sum;
 
     sum = 0;
-    while (vec) {
+    while (vec)
+    {
         if (vec & 1)
             sum ^= *mat;
         vec >>= 1;
@@ -44,17 +45,17 @@ static void gf2_matrix_square(DWORD *square, DWORD *mat)
     int n;
 
     for (n = 0; n < 32; n++)
-	{
-		square[n] = gf2_matrix_times(mat, mat[n]);
-	}
+    {
+        square[n] = gf2_matrix_times(mat, mat[n]);
+    }
 }
 
 
 DWORD crc32_combine(DWORD crc1, DWORD crc2, UINT64 u64Len2)
 {
-	DWORD n, row;
-	DWORD even[32];    /* even-power-of-two zeros operator */
-	DWORD odd[32];     /* odd-power-of-two zeros operator */
+    DWORD n, row;
+    DWORD even[32];    /* even-power-of-two zeros operator */
+    DWORD odd[32];     /* odd-power-of-two zeros operator */
 
     /* degenerate case */
     if (u64Len2 == 0)
@@ -63,7 +64,8 @@ DWORD crc32_combine(DWORD crc1, DWORD crc2, UINT64 u64Len2)
     /* put operator for one zero bit in odd */
     odd[0] = 0xedb88320L;           /* CRC-32 polynomial */
     row = 1;
-    for (n = 1; n < 32; n++) {
+    for (n = 1; n < 32; n++)
+    {
         odd[n] = row;
         row <<= 1;
     }
@@ -76,7 +78,8 @@ DWORD crc32_combine(DWORD crc1, DWORD crc2, UINT64 u64Len2)
 
     /* apply len2 zeros to crc1 (first square will put the operator for one
        zero byte, eight zero bits, in even) */
-    do {
+    do
+    {
         /* apply zeros operator for this bit of len2 */
         gf2_matrix_square(even, odd);
         if (u64Len2 & 1)
@@ -94,7 +97,8 @@ DWORD crc32_combine(DWORD crc1, DWORD crc2, UINT64 u64Len2)
         u64Len2 >>= 1;
 
         /* if no more bits set, then done */
-    } while (u64Len2 != 0);
+    }
+    while (u64Len2 != 0);
 
     /* return combined crc */
     crc1 ^= crc2;

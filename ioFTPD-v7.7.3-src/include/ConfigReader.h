@@ -21,48 +21,48 @@
 
 typedef struct _CONFIG_LINE
 {
-	LPSTR				Variable;
-	INT					Variable_l;
-	LPSTR				Value;
-	INT					Value_l;
-	CHAR				Active;
-	LPSTR				Text;
-	INT					Text_l;
-	INT					Row;
-	struct _CONFIG_LINE	*Next;
+    LPSTR				Variable;
+    INT					Variable_l;
+    LPSTR				Value;
+    INT					Value_l;
+    CHAR				Active;
+    LPSTR				Text;
+    INT					Text_l;
+    INT					Row;
+    struct _CONFIG_LINE	*Next;
 
 } CONFIG_LINE, * LPCONFIG_LINE;
 
 
 typedef struct _CONFIG_LINE_ARRAY
 {
-	LPSTR						Name;
-	LPCONFIG_LINE				*Sorted;
-	LPCONFIG_LINE				First_Line;
-	INT							Name_Len;
-	INT							Lines;
-	INT							SSize;
-	struct _CONFIG_LINE_ARRAY	*Next;
+    LPSTR						Name;
+    LPCONFIG_LINE				*Sorted;
+    LPCONFIG_LINE				First_Line;
+    INT							Name_Len;
+    INT							Lines;
+    INT							SSize;
+    struct _CONFIG_LINE_ARRAY	*Next;
 
 } CONFIG_LINE_ARRAY, * LPCONFIG_LINE_ARRAY;
 
 
 typedef struct _CONFIG_FILE
 {
-	LPTSTR              tszConfigFile;
-	LOCKOBJECT			loConfig;
-	LPCONFIG_LINE_ARRAY	lpLineArray;
+    LPTSTR              tszConfigFile;
+    LOCKOBJECT			loConfig;
+    LPCONFIG_LINE_ARRAY	lpLineArray;
 } CONFIG_FILE, *LPCONFIG_FILE;
 
 
 typedef struct _SECTION_INFO
 {
-	INT    iCredit;
-	INT    iStat;
-	INT    iShare;
-	DWORD  dwSectionName;
-	TCHAR  tszSectionName[_MAX_NAME+1];
-	TCHAR  tszPath[1];
+    INT    iCredit;
+    INT    iStat;
+    INT    iShare;
+    DWORD  dwSectionName;
+    TCHAR  tszSectionName[_MAX_NAME+1];
+    TCHAR  tszPath[1];
 } SECTION_INFO, *LPSECTION_INFO;
 
 
@@ -97,9 +97,9 @@ BOOL Config_Get_Permission2(LPCONFIG_FILE lpConfigFile, LPSTR szArray, LPSTR szV
 
 BOOL PathCheck(LPUSERFILE lpUserFile, LPSTR szVirtualPath, LPSTR szAccessMethod);
 VOID Config_Get_Section(LPSTR szVirtualPath, LPSTR szSection, LPINT lpCreditSection,
-						LPINT lpStatsSection, LPINT lpShareSection);
+                        LPINT lpStatsSection, LPINT lpShareSection);
 BOOL Config_Get_SectionNum(INT iSectionNum, LPTSTR tszSectionName,
-						   LPINT lpCreditSection, LPINT lpStatsSection, LPINT lpShareSection);
+                           LPINT lpCreditSection, LPINT lpStatsSection, LPINT lpShareSection);
 
 BOOL Config_Set(LPCONFIG_FILE lpConfigFile, LPSTR Array, INT Line, LPSTR Value, INT Mode);
 BOOL Config_Read(LPCONFIG_FILE lpConfigFile);

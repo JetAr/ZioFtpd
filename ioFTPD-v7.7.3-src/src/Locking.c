@@ -21,93 +21,93 @@
 
 #include <ioFTPD.h>
 
-
-
-
 BOOL InitializeLockObject(LPLOCKOBJECT lpLockObject)
 {
-	lpLockObject->lExclusive	= FALSE;
-	lpLockObject->hEvent[0]	= CreateEvent(NULL, TRUE, TRUE, NULL);
-	if (lpLockObject->hEvent[0] == INVALID_HANDLE_VALUE) return FALSE;
-	lpLockObject->hEvent[1]	= CreateSemaphore(NULL, LOCK_MAX_COUNT, LOCK_MAX_COUNT, 0);
-	if (!lpLockObject->hEvent[1])
-	{
-		CloseHandle(lpLockObject->hEvent[0]);
-		lpLockObject->hEvent[0] = INVALID_HANDLE_VALUE;
-		return FALSE;
-	}
-	return TRUE;
+    lpLockObject->lExclusive	= FALSE;
+
+    /*CreateEventA(
+    __in_opt LPSECURITY_ATTRIBUTES lpEventAttributes,
+    __in     BOOL bManualReset,
+    __in     BOOL bInitialState,
+    __in_opt LPCSTR lpName
+    );*/
+    //z 创建一个手动重置事件，初始状态为signaled
+    lpLockObject->hEvent[0]	= CreateEvent(NULL, TRUE, TRUE, NULL);
+    //z 检查是否创建成功
+    if (lpLockObject->hEvent[0] == INVALID_HANDLE_VALUE) return FALSE;
+    //z 信号量 10000
+    lpLockObject->hEvent[1]	= CreateSemaphore(NULL, LOCK_MAX_COUNT, LOCK_MAX_COUNT, 0);
+
+    //z 检查是否创建成功
+    if (!lpLockObject->hEvent[1])
+    {
+        CloseHandle(lpLockObject->hEvent[0]);
+        lpLockObject->hEvent[0] = INVALID_HANDLE_VALUE;
+        return FALSE;
+    }
+    return TRUE;
 }
 
-
-
+//z 删除 LockObject
 VOID DeleteLockObject(LPLOCKOBJECT lpLockObject)
 {
-	HANDLE hEvent;
+    //z 关闭事件句柄
+    HANDLE hEvent;
 
-	hEvent = lpLockObject->hEvent[0];
-	if (hEvent && (hEvent != INVALID_HANDLE_VALUE))
-	{
-		CloseHandle(hEvent);
-	}
-	lpLockObject->hEvent[0] = INVALID_HANDLE_VALUE;
+    hEvent = lpLockObject->hEvent[0];
+    if (hEvent && (hEvent != INVALID_HANDLE_VALUE))
+    {
+        CloseHandle(hEvent);
+    }
+    lpLockObject->hEvent[0] = INVALID_HANDLE_VALUE;
 
-	hEvent = lpLockObject->hEvent[1];
-	if (hEvent && (hEvent != INVALID_HANDLE_VALUE))
-	{
-		CloseHandle(hEvent);
-	}
-	lpLockObject->hEvent[1] = INVALID_HANDLE_VALUE;
+    hEvent = lpLockObject->hEvent[1];
+    if (hEvent && (hEvent != INVALID_HANDLE_VALUE))
+    {
+        CloseHandle(hEvent);
+    }
+    lpLockObject->hEvent[1] = INVALID_HANDLE_VALUE;
 }
-
-
-
 
 VOID AcquireSharedLock(LPLOCKOBJECT lpLockObject)
 {
-	WaitForMultipleObjects(2, lpLockObject->hEvent, TRUE, INFINITE);
+    //z 在两个事件上等待
+    //z 等待成功后会怎样？
+    WaitForMultipleObjects(2, lpLockObject->hEvent, TRUE, INFINITE);
 }
-
-
-
 
 VOID ReleaseSharedLock(LPLOCKOBJECT lpLockObject)
 {
-	ReleaseSemaphore(lpLockObject->hEvent[1], 1, NULL);
+    ReleaseSemaphore(lpLockObject->hEvent[1], 1, NULL);
 }
 
-
-
+//z 获取排它锁
 VOID AcquireExclusiveLock(LPLOCKOBJECT lpLockObject)
 {
-	LONG	lCount, lLeft;
+    LONG	lCount, lLeft;
 
-	while (InterlockedExchange(&lpLockObject->lExclusive, TRUE)) WaitForSingleObject(lpLockObject->hEvent[0], INFINITE);
-	ResetEvent(lpLockObject->hEvent[0]);
-	for (;;)
-	{
-		WaitForSingleObject(lpLockObject->hEvent[1], INFINITE);
-		ReleaseSemaphore(lpLockObject->hEvent[1], 1, &lCount);
-		lLeft	= (LOCK_MAX_COUNT - 1) - lCount;
-		if (! lLeft) break;
-		if (lLeft < 10)
-		{
-			SwitchToThread();
-		}
-		else Sleep(10);
-	}
+    //z 返回 lpLockObject->lExcolusive 的初始值。
+    while (InterlockedExchange(&lpLockObject->lExclusive, TRUE)) WaitForSingleObject(lpLockObject->hEvent[0], INFINITE);
+    ResetEvent(lpLockObject->hEvent[0]);
+    for (;;)
+    {
+        WaitForSingleObject(lpLockObject->hEvent[1], INFINITE);
+        ReleaseSemaphore(lpLockObject->hEvent[1], 1, &lCount);
+        lLeft	= (LOCK_MAX_COUNT - 1) - lCount;
+        if (! lLeft) break;
+        if (lLeft < 10)
+        {
+            SwitchToThread();
+        }
+        else Sleep(10);
+    }
 }
-
-
 
 VOID ReleaseExclusiveLock(LPLOCKOBJECT lpLockObject)
 {
-	SetEvent(lpLockObject->hEvent[0]);
-	InterlockedExchange(&lpLockObject->lExclusive, FALSE);
+    SetEvent(lpLockObject->hEvent[0]);
+    InterlockedExchange(&lpLockObject->lExclusive, FALSE);
 }
-
-
-
 
 /*
 BOOL InitializeLockObject(LPLOCKOBJECT lpLock)
