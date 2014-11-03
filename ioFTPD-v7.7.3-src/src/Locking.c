@@ -31,7 +31,8 @@ BOOL InitializeLockObject(LPLOCKOBJECT lpLockObject)
     __in     BOOL bInitialState,
     __in_opt LPCSTR lpName
     );*/
-    //z 创建一个手动重置事件，初始状态为signaled
+    
+    //z 创建一个手动重置事件，初始状态为 signaled
     lpLockObject->hEvent[0]	= CreateEvent(NULL, TRUE, TRUE, NULL);
     //z 检查是否创建成功
     if (lpLockObject->hEvent[0] == INVALID_HANDLE_VALUE) return FALSE;
