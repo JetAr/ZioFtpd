@@ -23,7 +23,7 @@
 
 
 
-
+//z 将秒转化成时分秒
 VOID HoursMinutesSeconds(LPDWORD lpHours, LPDWORD lpMinutes, LPDWORD lpSeconds)
 {
     DWORD	dwSeconds;

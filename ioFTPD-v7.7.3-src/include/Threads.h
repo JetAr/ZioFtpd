@@ -40,8 +40,9 @@ typedef struct _RESOURCE_DTOR
 
 } RESOURCE_DTOR, *LPRESOURCE_DTOR;
 
-
+//z 联合
 typedef union {
+    //z 这里有三种格式联合
 	struct {
 		unsigned doFormat      : 1; // a formatter field
 		unsigned doReset       : 1;
@@ -49,7 +50,8 @@ typedef union {
 		unsigned hasUnderLine  : 1;
 		unsigned Underline     : 1;
 		unsigned Italic        : 1;
-		unsigned padding       : 10; // make last 2 fields be char aligned and fill int
+		//z 对齐
+        unsigned padding       : 10; // make last 2 fields be char aligned and fill int
 		unsigned Foreground    : 8;
 		unsigned Background    : 8;
 	} Settings;
@@ -60,7 +62,6 @@ typedef union {
 	int i; // for quickly setting it to 0
 } THEME_FIELD, *LPTHEME_FIELD;
 
-
 typedef struct _OUTPUT_THEME
 {
 	INT32         iTheme;
@@ -68,7 +69,7 @@ typedef struct _OUTPUT_THEME
 	THEME_FIELD   ThemeFieldsArray[MAX_COLORS+1]; // index 0 is SubThemeDefault
 } OUTPUT_THEME, *LPOUTPUT_THEME;
 
-
+//z 线程数据
 typedef struct _THREADDATA
 {
 	BOOL				bReuse;
@@ -105,6 +106,7 @@ BOOL QueueJob(LPVOID lpProc, LPVOID lpContext, DWORD dwPriority);
 BOOL Thread_Init(BOOL bFirstInitialization);
 DWORD CalculateCrc32(PCHAR pOffset, DWORD dwBytes, PUINT32 pCrc32);
 VOID Thread_DeInit(VOID);
+
 
 extern HANDLE	hCompletionPort;
 

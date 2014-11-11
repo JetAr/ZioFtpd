@@ -18,22 +18,24 @@
  * Free Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston,
  * MA 02110-1301, USA.
  */
-
+//z 链表
+//z 得看下是如何进行初始化的
 typedef struct _CONFIG_LINE
 {
-    LPSTR				Variable;
-    INT					Variable_l;
-    LPSTR				Value;
-    INT					Value_l;
+    //z _l 表示长度
+    LPSTR				Variable;//z 变量名
+    INT					Variable_l;//z 变量长度
+    LPSTR				Value;//z 变量值
+    INT					Value_l;//z 变量值长度
     CHAR				Active;
     LPSTR				Text;
     INT					Text_l;
-    INT					Row;
+    INT					Row;//z 所在的行
     struct _CONFIG_LINE	*Next;
 
 } CONFIG_LINE, * LPCONFIG_LINE;
 
-
+//z 链表
 typedef struct _CONFIG_LINE_ARRAY
 {
     LPSTR						Name;
@@ -46,12 +48,12 @@ typedef struct _CONFIG_LINE_ARRAY
 
 } CONFIG_LINE_ARRAY, * LPCONFIG_LINE_ARRAY;
 
-
+//z 配置文件说明
 typedef struct _CONFIG_FILE
 {
-    LPTSTR              tszConfigFile;
-    LOCKOBJECT			loConfig;
-    LPCONFIG_LINE_ARRAY	lpLineArray;
+    LPTSTR              tszConfigFile;//z 配置文件路径
+    LOCKOBJECT			loConfig;//z 配置文件锁
+    LPCONFIG_LINE_ARRAY	lpLineArray;//z ？
 } CONFIG_FILE, *LPCONFIG_FILE;
 
 

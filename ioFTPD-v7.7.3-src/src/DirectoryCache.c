@@ -31,7 +31,33 @@ BOOL  bVfsExportedPathsOnly;
 static BOOL  ValidFileContext(LPFILECONTEXT lpContext);
 static DWORD GetFileModeContextFlags(LPFILECONTEXT lpContext);
 
+//z 对文件名进行 hash 
+//z 注意这里都使用了 register
+/*
+1. register 在 c 中的作用
+It's a hint to the compiler that the variable will be heavily used and that you recommend it be kept in a processor register if possible.
 
+Most modern compilers do that automatically, and are better at picking them than us humans. :-)
+
+2. 不使用 register 的好理由
+A good reason not to use 'register': you can't take the address of a variable declared 'register' –
+在c++中，这点并不成立。c++允许你取得一个 register variable变量的地址
+Worth adding for people using C++, C++ lets you take the address of a register variable 
+
+3.
+You probably know this, but just to be explicit, the compiler is required to prevent the address of a register variable from being taken; this is the only mandatory effect of the register keyword. Even this is sufficient to improve optimizations, because it becomes trivial to tell that the variable can only be modified within this function. 
+
+4.
+It tells the compiler to try to use a CPU register, instead of RAM, to store the variable. Registers are in the CPU and much faster to access than RAM. But it's only a suggestion to the compiler, and it may not follow through.
+
+but the compiler will likely end up ignoring the keyword as a result.
+
+5.
+There is a reason actually. The mere fact that you cannot take a address of the variable yields some optimization opportunities: the compiler can prove that the variable will not be aliased. 
+
+It hasn't been relevant for at least 15 years as optimizers make better decisions about this than you can. Even when it was relevant, it made a lot more sense on a CPU architecture with a lot of registers, like SPARC or M68000 than it did on Intel with its paucity of registers, most of which are reserved by the compiler for its own purposes.
+*/
+//z 使用 crc table 来对 file name 进行 hash
 UINT32 HashFileName(register LPTSTR tszFileName, register DWORD dwFileName)
 {
     register UINT32  Crc32;
@@ -48,10 +74,10 @@ UINT32 HashFileName(register LPTSTR tszFileName, register DWORD dwFileName)
     return Crc32;
 }
 
-
-
+//z 比较函数
 INT __cdecl CompareDirectoryName(LPDIRECTORY *lpItem1, LPDIRECTORY *lpItem2)
 {
+    //z 使用 hash 值，而不是直接比较目录名，这样会快很多。
     if (lpItem1[0]->Hash > lpItem2[0]->Hash) return 1;
     if (lpItem1[0]->Hash < lpItem2[0]->Hash) return -1;
     return _tcsicmp(lpItem1[0]->tszFileName, lpItem2[0]->tszFileName);
@@ -428,10 +454,11 @@ void ReleaseDirCacheLock(LPDIRECTORY lpDirectory, BOOL bDelete)
 }
 
 
-
+//z 更新目录信息
 static BOOL UpdateDirectory(LPDIRECTORY lpDirectory, BOOL bRecursive, BOOL bFakeDirs)
 {
     LPFILEINFO      *lpFileInfoArray, lpFile, lpParent;
+    //z 遍历文件
     WIN32_FIND_DATA    FindData;
     WIN32_FILE_ATTRIBUTE_DATA DirData;
     LPTSTR        tszFileName;
@@ -450,16 +477,22 @@ static BOOL UpdateDirectory(LPDIRECTORY lpDirectory, BOOL bRecursive, BOOL bFake
     dwError  = NO_ERROR;
     if (! lpDirectory) return FALSE;
     // Fill with -1 since FILETIME's must be less than 0x8000000000000000.
+    //z 注意填充的是 -1
     FillMemory(ftRootEntry, sizeof(FILETIME)*3,-1);
 
     //  Allocate memory area for tables
     lpDirectoryInfo  = (LPDIRECTORYINFO)Allocate("Directory:Info", sizeof(DIRECTORYINFO) + lpDirectory->dwFileName*sizeof(TCHAR));
+    //z 如果没有分配成功，那么返回
     if (! lpDirectoryInfo) return FALSE;
+    //z 将该区域初始化为0
     ZeroMemory(lpDirectoryInfo, sizeof(DIRECTORYINFO));
+    //z 设置实际路径
     lpDirectoryInfo->dwRealPath = lpDirectory->dwFileName;
+    //z 拷贝内存
     CopyMemory(lpDirectoryInfo->tszRealPath, lpDirectory->tszFileName, lpDirectory->dwFileName+1);
 
     dwItems  = 0;
+    //z 最少也是 25 。
     dwSize  = (lpDirectory->lpDirectoryInfo ? max(lpDirectory->lpDirectoryInfo->dwDirectorySize, 25) : 25);
 
     //  Allocate table
@@ -477,6 +510,7 @@ static BOOL UpdateDirectory(LPDIRECTORY lpDirectory, BOOL bRecursive, BOOL bFake
         //  Calculate filename length
         tszFileName  = lpDirectory->tszFileName;
         dwFileName  = lpDirectory->dwFileName - 1;
+        //z 获取 file name
         while (dwFileName && lpDirectory->tszFileName[dwFileName] != _TEXT('\\')) dwFileName--;
         dwFileName  = lpDirectory->dwFileName - (dwFileName + 1);
 
@@ -489,7 +523,9 @@ static BOOL UpdateDirectory(LPDIRECTORY lpDirectory, BOOL bRecursive, BOOL bFake
         }
         ZeroMemory(lpFile, sizeof(FILEINFO));
         //  Update file structure
-        lpFile->dwSafety          = 0xDEADBEAF;
+        //z 进行初始化
+        lpFile->dwSafety          = 0xDEADBEAF;//z 魔术数，在dump的时候能够找到其起始位置
+        //z 计数器，开始设置为 1
         lpFile->lReferenceCount    = 1;
         lpFile->dwFileAttributes  = FILE_ATTRIBUTE_DIRECTORY;
         lpFile->dwFileName  = dwFileName;

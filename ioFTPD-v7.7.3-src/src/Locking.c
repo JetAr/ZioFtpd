@@ -70,6 +70,7 @@ VOID DeleteLockObject(LPLOCKOBJECT lpLockObject)
     lpLockObject->hEvent[1] = INVALID_HANDLE_VALUE;
 }
 
+//z 获取共享锁
 VOID AcquireSharedLock(LPLOCKOBJECT lpLockObject)
 {
     //z 在两个事件上等待

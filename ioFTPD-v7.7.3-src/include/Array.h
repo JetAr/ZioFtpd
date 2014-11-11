@@ -19,6 +19,7 @@
  * MA 02110-1301, USA.
  */
 
+//z 函数指针定义
 typedef INT (__cdecl * QUICKCOMPAREPROC)(LPCVOID *, LPCVOID *);
 typedef INT (__cdecl * QUICKCHECKPROC)(LPCVOID *);
 

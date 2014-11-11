@@ -58,19 +58,22 @@ BOOL FindString(LPTSTR tszIn, DWORD dwIn, LPTSTR *lpOut, PINT iOut)
 }
 
 
-
+//z 对配置进行排序
 INT Config_Sort(LPCONFIG_LINE *a, LPCONFIG_LINE *b)
 {
     register INT	iResult;
 
     //	Compare variable name length
+    //z 先比较变量名长度，越短，排名越靠前
     if (a[0]->Variable_l > b[0]->Variable_l) return 1;
     if (a[0]->Variable_l < b[0]->Variable_l) return -1;
     //	Compare variable name
+    //z 其次比较字符名称，按字典序返回
     iResult	= _tcsnicmp(a[0]->Variable, b[0]->Variable, a[0]->Variable_l);
     if (iResult != 0) return iResult;
 
     //	Compare row variable is on
+    //z 然后比较其所在的行
     if (a[0]->Row == b[0]->Row) return 0;
     if (a[0]->Row < b[0]->Row) return -1;
 
@@ -82,9 +85,11 @@ INT Config_Sort(LPCONFIG_LINE *a, LPCONFIG_LINE *b)
 INT __cdecl Config_Search(LPCONFIG_LINE *a, LPCONFIG_LINE *b)
 {
     //	Compare variable name length
+    //z 比较变量长度
     if (a[0]->Variable_l > b[0]->Variable_l) return 1;
     if (a[0]->Variable_l < b[0]->Variable_l) return -1;
     //	Compare variable name
+    //z 比较变量名称
     return _tcsnicmp(a[0]->Variable, b[0]->Variable, a[0]->Variable_l);
 }
 
@@ -117,10 +122,11 @@ BOOL Config_Sort_Array(LPCONFIG_LINE_ARRAY lpLineArray)
 }
 
 
-
+//z 为配置文件获取锁
 VOID Config_Lock(LPCONFIG_FILE lpConfigFile, BOOL bExclusive)
 {
     //	Check lock type
+    //z 检查是否是排他的
     if (! bExclusive)
     {
         //	Acquire shared lock
@@ -607,6 +613,7 @@ LPCONFIG_LINE Config_Get_Primitive(LPCONFIG_FILE lpConfigFile, LPTSTR tszArray, 
 
     dwArray	= _tcslen(tszArray);
     //	Find the named array
+    //z 对配置line进行搜索
     for (lpArray = lpConfigFile->lpLineArray; lpArray; lpArray = lpArray->Next)
     {
         if (lpArray->Name_Len == dwArray &&
@@ -615,12 +622,16 @@ LPCONFIG_LINE Config_Get_Primitive(LPCONFIG_FILE lpConfigFile, LPTSTR tszArray, 
         {
             //	Get variable length
             dwVariable	= _tcslen(tszVariable);
+            
             //	Get offset
+            //z 获取offset
             iOffset	= (lpOffset ? lpOffset[0] : 0);
 
+            //z 如果 iOffset 不为 0
             if (iOffset)
             {
                 //	Make sure that there is next item
+                //z 查看是否越界了
                 if (iOffset >= lpArray->SSize) break;
                 //	Store pointer to item
                 lpResultLine	= &lpArray->Sorted[iOffset];
@@ -642,8 +653,11 @@ LPCONFIG_LINE Config_Get_Primitive(LPCONFIG_FILE lpConfigFile, LPTSTR tszArray, 
                                   lpArray->SSize, sizeof(LPCONFIG_LINE),
                                   (QUICKCOMPAREPROC) Config_Search);
                 //	Check search result
+                //z 如果没有找到直接返回
                 if (! lpResultLine) break;
                 //	Find first matching line using lame linear method
+
+                //z 这个是在数组里操作，所以能--
                 while (lpResultLine-- > lpArray->Sorted)
                 {
                     if (lpResultLine[0]->Variable_l != dwVariable ||
@@ -852,14 +866,16 @@ BOOL Config_Get_Int(LPCONFIG_FILE lpConfigFile, LPTSTR tszArray, LPTSTR tszVaria
 
 
 
-
+//z 调用例子 tszPriority	= Config_Get(&IniConfigFile, _TEXT("Threads"), _TEXT("Process_Priority"), NULL, NULL);
 LPTSTR Config_Get(LPCONFIG_FILE lpConfigFile, LPTSTR tszArray, LPTSTR tszVariable, LPTSTR tszBuffer, LPINT iOffset)
 {
     LPCONFIG_LINE	lpLine;
     DWORD			dwBuffer;
 
+    //z 获取共享权限
     Config_Lock(lpConfigFile, FALSE);
     //	Search variable from config
+    //z 从配置文件获取对应的变量
     lpLine = Config_Get_Primitive(lpConfigFile, tszArray, tszVariable, iOffset);
 
     if (lpLine)
@@ -869,12 +885,15 @@ LPTSTR Config_Get(LPCONFIG_FILE lpConfigFile, LPTSTR tszArray, LPTSTR tszVariabl
             //	Predefined buffer
             dwBuffer	= min(lpLine->Value_l, _INI_LINE_LENGTH);
         }
+        //z tszBuffer 为空，那么会为之分配对应的空间。
         else
         {
             //	Allocate memory
             dwBuffer	= lpLine->Value_l;
             tszBuffer	= (LPTSTR)Allocate("Config:Get:Result", (dwBuffer + 1) * sizeof(TCHAR));
         }
+
+        //z 分配空间后拷贝出结果
         if (tszBuffer)
         {
             //	Copy result to buffer
@@ -883,6 +902,7 @@ LPTSTR Config_Get(LPCONFIG_FILE lpConfigFile, LPTSTR tszArray, LPTSTR tszVariabl
         }
     }
     else tszBuffer	= NULL;
+
     Config_Unlock(lpConfigFile, FALSE);
 
     return tszBuffer;

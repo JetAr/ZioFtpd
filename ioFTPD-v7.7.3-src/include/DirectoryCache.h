@@ -61,12 +61,13 @@
 
 
 
-
+//z 上下文环境
 typedef struct _FILECONTEXT
 {
+    //z 数据
     LPVOID			lpData;
+    //z 数据长度？
     DWORD			dwData;
-
 } FILECONTEXT, * LPFILECONTEXT;
 
 typedef struct _FSEARCH
@@ -86,27 +87,37 @@ typedef struct _FSEARCH
 //       so the layout is struct+filename+fullpath
 typedef struct _FILEINFO
 {
+    //z？
     DWORD             dwSafety;
+    //z 引用计数
     LONG volatile	  lReferenceCount;
+    //z 文件大小
     UINT64			  FileSize;
+    //z 子目录数目么？
     DWORD			  dwSubDirectories;
     FILETIME		  ftModificationTime;
     FILETIME		  ftAlternateTime;
-    UINT32			  Uid;
-    UINT32			  Gid;
+    UINT32			  Uid;//z user id?
+    UINT32			  Gid;//z group id?
     DWORD             dwUploadTimeInMs;
+    //z 文件模式
     DWORD			  dwFileMode;
+    //z 文件属性
     DWORD volatile	  dwFileAttributes;
+    //z 文件上下文
     FILECONTEXT		  Context;
+    //z 链表结构
     struct _FILEINFO *lpLinkedRoot;
+    //z 文件名长度
     DWORD			  dwFileName;
+    //z 文件名占位符
     TCHAR			  tszFileName[1];
 
 } FILEINFO, * LPFILEINFO;
 
-
 typedef struct _DIRECTORYINFO
 {
+    //z 引用计数
     LONG volatile		   lReferenceCount;
     LPFILEINFO			  *lpFileInfo;
     LPFILEINFO			   lpRootEntry;
@@ -127,9 +138,10 @@ typedef struct _DIRECTORYCACHEINFO
 
 } DIRECTORYCACHEINFO, *LPDIRECTORYCACHEINFO;
 
-
+//z 表示目录
 typedef struct _DIRECTORY
 {
+    //z 前一个，后一个
     struct _DIRECTORY	*lpPrev;
     struct _DIRECTORY	*lpNext;
 
@@ -139,10 +151,14 @@ typedef struct _DIRECTORY
     BOOL                bHasFakeSubDirs;
     BOOL                bLocked;
     LONG 				lReferenceCount;
+    //z 文件时间
     FILETIME			ftCacheTime;
     LPDIRECTORYINFO		lpDirectoryInfo;
+    //z hash 值
     UINT32				Hash;
+    //z 文件名长度
     DWORD				dwFileName;
+    //z 占位符
     TCHAR				tszFileName[1];
 
 } DIRECTORY, * LPDIRECTORY;

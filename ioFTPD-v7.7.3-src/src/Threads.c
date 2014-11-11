@@ -38,7 +38,7 @@ static DWORD		dwPriorityCount[3];
 static CRITICAL_SECTION	csJobQueue, csWorkerThreadCount, csInheritedHandleLock;
 static BOOL         bCreateTclInterpreters, bLogExitingWorkerThreads;
 
-
+//z 创建 crc32 表
 unsigned int crc32_table[256] = {  0x00000000, 0x77073096, 0xEE0E612C, 0x990951BA,
                                    0x076DC419, 0x706AF48F, 0xE963A535, 0x9E6495A3, 0x0EDB8832, 0x79DCB8A4, 0xE0D5E91E,
                                    0x97D2D988, 0x09B64C2B, 0x7EB17CBD, 0xE7B82D07, 0x90BF1D91, 0x1DB71064, 0x6AB020F2,
@@ -83,17 +83,18 @@ unsigned int crc32_table[256] = {  0x00000000, 0x77073096, 0xEE0E612C, 0x990951B
 
 
 /*
-
   Process_SetPriority() - Sets priority class for chosen process
-
   */
+//z 设置进程优先权
 BOOL Process_SetPriority(LPTSTR tszPriority, HANDLE hProcess)
 {
     INT	iPriority;
 
     //	Check that priority string is set
+    //z 如果优先权字符串为空
     if (! tszPriority) return FALSE;
 
+    //z 根据字符串设置对应的优先级
     if (! _tcsnicmp(tszPriority, _TEXT("Idle"), 4))
     {
         // Idle
@@ -114,7 +115,7 @@ BOOL Process_SetPriority(LPTSTR tszPriority, HANDLE hProcess)
         //	Time Critical
         iPriority	= REALTIME_PRIORITY_CLASS;
     }
-    else return FALSE;
+    else return FALSE;//z 如果不是以上，则返回
 
     return SetPriorityClass(hProcess, iPriority);
 }
@@ -135,16 +136,19 @@ BOOL Thread_Init(BOOL bFirstInitialization)
     LPTHREADDATA    lpThreadData;
 
     if (! bFirstInitialization) return TRUE;
+
     //	Initialize thread vars
     lWorkerThreads			= 0;
     lInitialWorkerThreads	= 0;
     lBlockingWorkerThreads	= 0;
     lFreeWorkerThreads		= 0;
     lWorkerTclLock          = 0;
+
+    //z 分配 thread local storage
     dwThreadDataTlsIndex	= TlsAlloc();
     lpFreeJob	     = NULL;
     lpAllocatedJobs  = NULL;
-    //z 最多可以放百万 job 。。。
+    //z 最多可以放百万 job 
     hJobAlert	     = CreateSemaphore(NULL, 0, 1000000, NULL);
     InitializeCriticalSectionAndSpinCount(&csJobQueue, 100);
     InitializeCriticalSectionAndSpinCount(&csWorkerThreadCount, 100);
@@ -153,24 +157,36 @@ BOOL Thread_Init(BOOL bFirstInitialization)
     lpObsoleteThreadPool	= NULL;
     ZeroMemory(&lpJobQueue[HEAD], sizeof(lpJobQueue[HEAD]));
     ZeroMemory(&dwPriorityCount, sizeof(dwPriorityCount));
+
+    //z 这里是为获取 cpu 信息，
     GetSystemInfo(&SystemInfo);
     //	Create completion port
+    //z 创建完成端口
     hCompletionPort	= CreateIoCompletionPort(INVALID_HANDLE_VALUE, 0, 0, SystemInfo.dwNumberOfProcessors * 2);
     //	Get amount of threads
+    //z 从配置文件获取 worker_threads 数目，如果数目小于5，那么设置为5。
+    //z workerthread count 至少为 5
     if (Config_Get_Int(&IniConfigFile, _TEXT("Threads"), _TEXT("Worker_Threads"), &dwWorkerThreadCount) ||
             dwWorkerThreadCount < 5) dwWorkerThreadCount	= 5;
 
+    //z 从配置文件获取 io_threads 数目，确保数目大于1
     if (Config_Get_Int(&IniConfigFile, _TEXT("Threads"), _TEXT("Io_Threads"), (PLONG)&lIoThreadCount) ||
             ! lIoThreadCount) lIoThreadCount	= 2;
     //	Set priority for process
+    //z 获取 process 优先权，并进行设置
+    //z tszPriority 分配过来的 malloc
     tszPriority	= Config_Get(&IniConfigFile, _TEXT("Threads"), _TEXT("Process_Priority"), NULL, NULL);
     Process_SetPriority(tszPriority, GetCurrentProcess());
+    //z 释放分配的空间
     Free(tszPriority);
 
+    //z 是否创建 tcp 解释器
     if (Config_Get_Bool(&IniConfigFile, _T("Threads"), _T("Create_Tcl_Interpreters"), &bCreateTclInterpreters))
     {
         bCreateTclInterpreters = FALSE;
     }
+
+    //z 是否记录结束的 worker thread
     if (Config_Get_Bool(&IniConfigFile, _T("Threads"), _T("Log_Exiting_Worker_Threads"), &bLogExitingWorkerThreads))
     {
         bLogExitingWorkerThreads = FALSE;
@@ -178,6 +194,7 @@ BOOL Thread_Init(BOOL bFirstInitialization)
 
     // as a special case, we create a worker ThreadData structure on the main thread so we can parse
     // message cookies correctly because it uses the SetAutoTheme function...
+    //z 特定例子；创建 worker ThreadData 结构
     lpThreadData = Allocate("Thread:Data:MAIN", sizeof(THREADDATA));
     if (! lpThreadData) ERROR_RETURN(ERROR_NOT_ENOUGH_MEMORY, FALSE);
     TlsSetValue(dwThreadDataTlsIndex, lpThreadData);
