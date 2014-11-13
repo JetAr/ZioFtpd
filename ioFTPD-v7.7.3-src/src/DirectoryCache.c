@@ -206,21 +206,24 @@ LPFILEINFO FindFileInfo(DWORD dwFileAttributes, LPTSTR tszFileName, LPDIRECTORYI
     return (lpResult ? lpResult[0] : NULL);
 }
 
-
-
+//z FreeDirectoryInfo(lpDirectoryInfo, FALSE);
 BOOL FreeDirectoryInfo(LPDIRECTORYINFO lpDirectoryInfo, BOOL bDirty)
 {
     DWORD  n;
 
     if (! lpDirectoryInfo) return TRUE;
 
+    //z 如果是 Dirty 那么涉及到需要保存文件什么的？
     if (bDirty)
     {
         lpDirectoryInfo->lpRootEntry->dwFileAttributes |= FILE_ATTRIBUTE_DIRTY;
     }
+
     //  Frees directory info if reference count is zero
+    //z 查看 reference count，只有为0时，才释放
     if (! InterlockedDecrement(&lpDirectoryInfo->lReferenceCount))
     {
+        //z 链表结构？
         if (lpDirectoryInfo->lpLinkedInfo)
         {
             // we are a sharing directory info so we need to release it
@@ -229,15 +232,19 @@ BOOL FreeDirectoryInfo(LPDIRECTORYINFO lpDirectoryInfo, BOOL bDirty)
         else
         {
             // release unshared directory contents
+            //z 遍历关闭目录下的文件
             for (n = lpDirectoryInfo->dwDirectorySize; n--;)
             {
                 CloseFileInfo(lpDirectoryInfo->lpFileInfo[n]);
             }
             Free(lpDirectoryInfo->lpFileInfo);
         }
+        
+        //z 关闭 root entry
         CloseFileInfo(lpDirectoryInfo->lpRootEntry);
         Free(lpDirectoryInfo);
     }
+
     return FALSE;
 }
 
@@ -2052,18 +2059,13 @@ CONTINUE:
     return lpDirectoryInfo;
 }
 
-
-
-
-
-
-
-
-
+//z 关闭目录
 BOOL CloseDirectory(LPDIRECTORYINFO lpDirectoryInfo)
 {
+    //z 先检查指针是否合法
     if (! lpDirectoryInfo) return FALSE;
 
+    //z 释放相关目录信息
     return FreeDirectoryInfo(lpDirectoryInfo, FALSE);
 }
 
@@ -2176,23 +2178,30 @@ BOOL GetFileInfoNoCheck(LPTSTR tszFileName, LPFILEINFO *lpFileInfo)
     return GetFileInfo2(tszFileName, lpFileInfo, TRUE, NULL);
 }
 
-
-
-
+//z 关闭文件信息
 VOID CloseFileInfo(LPFILEINFO lpFileInfo)
 {
     //  Decrease reference count
+    //z 比对 magic number，查看数据是否有损毁
     if (lpFileInfo->dwSafety != 0xDEADBEAF)
     {
+        //z 发现不对的状况，那么记录到日志中去
         Putlog(LOG_ERROR, "CloseFileInfo: Discovered corrupted FileInfo - %d.\r\n", lpFileInfo->lReferenceCount);
+
         return;
     }
+
+    //z 对此部分进行削减
     if (! InterlockedDecrement(&lpFileInfo->lReferenceCount))
     {
+        //z 查看 LinkedRoot 
         if (lpFileInfo->lpLinkedRoot)
         {
+            //z 关闭 LinkedRoot
             CloseFileInfo(lpFileInfo->lpLinkedRoot);
         }
+
+        //z 重置 dwSafety 为 0
         lpFileInfo->dwSafety = 0;
         Free(lpFileInfo);
     }
