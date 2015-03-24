@@ -441,7 +441,7 @@ EventModuleProcCompare(LPEVENT_PROC *lpProc1,
     return stricmp(lpProc1[0]->szName, lpProc2[0]->szName);
 }
 
-
+//z 安装事件
 BOOL InstallEvent(LPSTR szName, EVENT_PROC_FUNC lpProc)
 {
     LPEVENT_PROC  lpEvent;
