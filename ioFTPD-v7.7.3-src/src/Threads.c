@@ -766,15 +766,18 @@ static UINT WINAPI IoThreadEx(LPVOID lpContext)
     DWORD			   dwBytesTransmitted, dwKey, dwLastError;
     BOOL			   bResult;
 
+    //z while(1)
     for (;;)
     {
         //	Get queued io completion status
         bResult	= GetQueuedCompletionStatus(hCompletionPort, &dwBytesTransmitted,
                                             &dwKey, (LPOVERLAPPED *)&lpOverlapped, INFINITE);
 
+        //z dwKey 为 -6 时，结束 thread 。
         if (dwKey == (DWORD) -6)
         {
             //	Make thread exit
+            //z 结束一个IO线程。
             InterlockedDecrement(&lIoThreadCount);
             ExitThread(0);
         }
@@ -792,7 +795,7 @@ static UINT WINAPI IoThreadEx(LPVOID lpContext)
                 //	File IO, success
                 dwLastError	= (! bResult ? GetLastError() : NO_ERROR);
                 // see if we need to start a queued request because too many were outstanding on device...
-                PopIOQueue(lpOverlapped->hFile);
+                PopIOQueue(lpOverlapped->hFile); 
                 break;
             case (DWORD)-2:
                 //	Pending socket send
