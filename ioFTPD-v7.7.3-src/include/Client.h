@@ -29,7 +29,7 @@ typedef struct _CLIENTSLOT
 } CLIENTSLOT, * LPCLIENTSLOT;
 
 
-
+//z client 相关信息
 typedef struct _CLIENT
 {
     ONLINEDATA		Static;

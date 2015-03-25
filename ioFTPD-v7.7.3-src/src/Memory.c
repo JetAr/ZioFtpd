@@ -517,8 +517,13 @@ BOOL FreeShared(LPVOID lpMem)
 
     if (! lpMem) return FALSE;
 
+    //z 在 lpMem 之前存放了两个 long 字节。
+    //z 其中第一个long中存放的是引用计数的数目。
+    //z 第二个long中为0xDEADBEAF；方便处理。
     lpOffset	= (LPLONG)((ULONG)lpMem - sizeof(LONG)*2);
+    
     //	Decrease share count
+    //z 发现约定之前的位置不存在魔术数了，可能内存空间已释放等。
     if (lpOffset[1] != 0xDEADBEAF)
     {
         Putlog(LOG_ERROR, "FreeShared: Discovered corrupted shared header.\r\n");
@@ -571,6 +576,10 @@ BOOL Memory_Init(BOOL bFirstInitialization)
         Size	+= Incr;
         //	Increment Increment by 8
         Incr	+= 8;
+        //z 这里只是记录了大小。实际的内存空间在何处分配了？
+        //0 : 8 Size = 16, incr = 16
+        //1 : 16 32,24
+        //2 : 32 56,32 ...
     }
     //	Heap lock
     if (! InitializeCriticalSectionAndSpinCount(&BucketLock, 100)) return FALSE;

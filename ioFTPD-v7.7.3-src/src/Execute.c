@@ -386,14 +386,16 @@ CopyEnvironment(LPBUFFER lpEnvironment,
 }
 
 
-
+//z 创建异步 pipe 。
 BOOL CreateAsyncPipe(LPHANDLE hRead, LPHANDLE hWrite, BOOL bNotAsync)
 {
     SECURITY_ATTRIBUTES  SecurityAttributes;
     CHAR        pNameBuffer[256];
     DWORD       dwFlags;
-
+    
+    //z 是否使用异步功能
     dwFlags = (bNotAsync ? 0 : FILE_FLAG_OVERLAPPED);
+    //z 根据 process id 以及 thread id 来构造 pipe 名称。
     wsprintf(pNameBuffer, "\\\\.\\pipe\\ioFTPD-%u-%u", GetCurrentProcessId(), GetCurrentThreadId());
     //  Prepare security sturcture
     SecurityAttributes.lpSecurityDescriptor  = NULL;
@@ -414,7 +416,9 @@ BOOL CreateAsyncPipe(LPHANDLE hRead, LPHANDLE hWrite, BOOL bNotAsync)
         return TRUE;
     }
 
+    //z 在hWrite 上写， 从 hRead 上读
     //  Open pipe
+    //z 打开 pipe
     hRead[0]  = CreateFile(pNameBuffer, GENERIC_READ, 0, NULL, OPEN_EXISTING, dwFlags, NULL);
 
     if (hRead[0] != INVALID_HANDLE_VALUE)
@@ -710,6 +714,7 @@ BOOL ExecuteAsync(LPEVENT_DATA lpEventData, IO_STRING *Arguments)
     }
 
     //  Set startup information
+    //z 创建 pipe 。
     StartUpInfo.hStdOutput  = hWritePipe;
     StartUpInfo.hStdError  = hWritePipe;
 
@@ -718,6 +723,7 @@ BOOL ExecuteAsync(LPEVENT_DATA lpEventData, IO_STRING *Arguments)
                       0, Environment.buf, 0, &StartUpInfo, &ProcessInformation))
     {
         // don't need this anymore
+        //z 为何此时要关闭 hWritePipe 了。
         CloseHandle(hWritePipe);
 
         ReleaseHandleLock();
