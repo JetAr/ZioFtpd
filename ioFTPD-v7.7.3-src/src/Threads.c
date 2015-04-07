@@ -196,9 +196,11 @@ BOOL Thread_Init(BOOL bFirstInitialization)
     // message cookies correctly because it uses the SetAutoTheme function...
     //z 特定例子；创建 worker ThreadData 结构
     lpThreadData = Allocate("Thread:Data:MAIN", sizeof(THREADDATA));
+    //z 设置last error，并且返回对应的值
     if (! lpThreadData) ERROR_RETURN(ERROR_NOT_ENOUGH_MEMORY, FALSE);
     TlsSetValue(dwThreadDataTlsIndex, lpThreadData);
 
+    //z 创建 dwWorkerThreadCount 个工作者线程。
     for (n = 0; n < dwWorkerThreadCount; n++)
     {
         //	Create worker thread
@@ -348,24 +350,29 @@ BOOL QueueJob(LPVOID lpProc, LPVOID lpContext, DWORD dwFlags)
     return FALSE;
 }
 
-
+//z 创建工作者线程
 static BOOL CreateWorkerThread(VOID)
 {
-    LPTHREADDATA	lpThreadData;
+    LPTHREADDATA	lpThreadData;//z thread data 指针
     HANDLE			hThread;
     DWORD			dwLastError, dwThreadId;
 
     //	Allocate thread structure
+    //z 分配空间
     lpThreadData	= Allocate("Thread:Data", sizeof(THREADDATA));
+    //z 没用成功分配
     if (! lpThreadData) ERROR_RETURN(ERROR_NOT_ENOUGH_MEMORY, FALSE);
 
+    //z 初始化数据
     ZeroMemory(lpThreadData, sizeof(*lpThreadData));
+    //z 创建事件，这个事件的作用是什么？
     lpThreadData->hEvent	     = CreateEvent(NULL, FALSE, FALSE, NULL);
 
     if (lpThreadData->hEvent)
     {
         //	Create new thread
         InterlockedIncrement(&lWorkerThreadCount);
+        //z 使用了 CreateThread 来创建线程
         hThread	= CreateThread(NULL, 0,
                                (LPTHREAD_START_ROUTINE)WorkerThread, lpThreadData, 0, &dwThreadId);
 
@@ -376,6 +383,7 @@ static BOOL CreateWorkerThread(VOID)
             return TRUE;
         }
 
+        //z 如果创建线程失败
         dwLastError	= GetLastError();
         CloseHandle(lpThreadData->hEvent);
         //z 如果是整数的话，可以使用类似这样的同步操作函数的
@@ -642,6 +650,7 @@ static UINT WINAPI WorkerThread(LPTHREADDATA lpThreadData)
         dwPriorityCount[dwPriority]		= 0;
         LeaveCriticalSection(&csJobQueue);
 
+        //z 这块儿是如何起作用的了？
         EnterCriticalSection(&csWorkerThreadCount);
         //	Check thread counters
         if (! --lFreeWorkerThreads &&
@@ -649,6 +658,7 @@ static UINT WINAPI WorkerThread(LPTHREADDATA lpThreadData)
         {
             if (lpObsoleteThreadPool)
             {
+                //z 设置事件
                 SetEvent(lpObsoleteThreadPool->hEvent);
                 lpObsoleteThreadPool->bReuse	= TRUE;
                 lpObsoleteThreadPool	= lpObsoleteThreadPool->lpNext;
