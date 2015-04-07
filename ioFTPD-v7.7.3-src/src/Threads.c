@@ -583,6 +583,7 @@ static UINT WINAPI WorkerThread(LPTHREADDATA lpThreadData)
                     continue;
                 }
 
+                //z 有点儿不明白这里，为何要使用InterlockedExchange，而不是类似别处使用 critical section 什么了？
                 if (!InterlockedExchange(&lWorkerTclLock, TRUE))
                 {
                     // interpreter missing or out of data and we got the lock so try to create
@@ -726,7 +727,6 @@ static UINT WINAPI WorkerThread(LPTHREADDATA lpThreadData)
         else LeaveCriticalSection(&csWorkerThreadCount);
     }
 }
-
 
 
 HANDLE GetThreadEvent(VOID)
