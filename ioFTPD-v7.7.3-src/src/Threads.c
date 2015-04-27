@@ -317,7 +317,7 @@ BOOL QueueJob(LPVOID lpProc, LPVOID lpContext, DWORD dwFlags)
         //z static volatile LPJOB	lpJobQueue[2][3], lpFreeJob, lpAllocatedJobs; 一些定义
         // first entry is just a fake to hold allocation for later freeing
         lpFreeJob->lpNext = lpAllocatedJobs;//z 最开始这个为NULL，而后总是指向新分配的 free jobs
-        lpAllocatedJobs = lpFreeJob;//第0个用于存储链表，用于气候的回收内存
+        lpAllocatedJobs = lpFreeJob;//第0个用于存储链表，用于其后的回收内存
         lpFreeJob = &lpFreeJob[1];//z 指向其第一个
         //	Initialize freejob list
         lpJob	= lpFreeJob;
